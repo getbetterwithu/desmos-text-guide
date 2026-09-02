@@ -1,0 +1,193 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Amplify Classroom 메모와 수식 답변에 수학 기호를 넣는 방법. 서울대학교사범대학부설중학교 허철호.">
+<title>Amplify 수식 입력 안내</title>
+<link rel="stylesheet" href="_mq/mathquill.css">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#12151b; --muted:#5f6b7f; --line:#e3e7ee; --soft:#f6f8fb;
+  --brand:#0f4c81; --accent:#b3005e; --ok:#0a7d54; --warn:#b8860b;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Pretendard","Malgun Gothic","맑은 고딕",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+     max-width:900px;margin:0 auto;padding:0 22px 0;color:var(--ink);line-height:1.68;font-size:11pt;
+     background:#fff;-webkit-font-smoothing:antialiased}
+
+/* 헤더 */
+.hero{border-bottom:3px solid var(--brand);padding:34px 0 20px;margin-bottom:26px}
+.eyebrow{display:inline-block;background:var(--brand);color:#fff;font-size:9.5pt;font-weight:700;
+         letter-spacing:.04em;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+h1{font-size:26pt;margin:0 0 8px;letter-spacing:-.03em;font-weight:800;line-height:1.25}
+.sub{color:var(--muted);font-size:11pt;margin:0}
+
+/* 시작 안내 */
+.rule{background:linear-gradient(180deg,#fffdf5,#fff9e8);border:1px solid #ecdfae;
+      border-radius:12px;padding:20px 24px;margin:22px 0 30px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.rule h3{margin:0 0 12px;font-size:13pt;color:#7a5200;font-weight:700;letter-spacing:-.01em}
+.rule ol{margin:0;padding-left:22px;counter-reset:r;list-style:none}
+.rule ol li{margin:11px 0;position:relative;padding-left:6px}
+.rule ol li::before{counter-increment:r;content:counter(r);position:absolute;left:-22px;top:2px;
+  width:19px;height:19px;background:var(--warn);color:#fff;border-radius:50%;
+  font-size:9.5pt;font-weight:700;text-align:center;line-height:19px}
+
+/* 섹션 제목 */
+h2{font-size:15pt;font-weight:800;letter-spacing:-.02em;margin:38px 0 12px;
+   padding-bottom:8px;border-bottom:2px solid var(--line);color:var(--ink)}
+h2 .n{display:inline-block;width:26px;height:26px;border-radius:7px;color:#fff;
+      font-size:11pt;text-align:center;line-height:26px;margin-right:9px;vertical-align:2px}
+h2.a .n{background:var(--ok)} h2.b .n{background:var(--accent)} h2.c .n{background:var(--brand)}
+h2.q{font-size:13.5pt;border-bottom:1px solid var(--line);margin-top:30px}
+
+/* 표 */
+table{border-collapse:separate;border-spacing:0;width:100%;margin:12px 0 10px;font-size:10.5pt;
+      border:1px solid var(--line);border-radius:10px}
+th{background:var(--soft);padding:10px 12px;text-align:left;font-size:9.8pt;font-weight:700;
+   color:var(--muted);letter-spacing:.02em;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;vertical-align:middle;border-bottom:1px solid #eef1f6}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fbfcfe}
+tbody tr.hl{background:#fff7fb!important;box-shadow:inset 4px 0 0 var(--accent)}
+tbody tr.hl:hover{background:#fff2f8!important}
+code{font-family:"D2Coding","SF Mono",ui-monospace,Consolas,monospace;font-size:9.6pt;color:var(--accent);
+     background:#fdf3f8;border:1px solid #f6e0ec;padding:2px 7px;border-radius:5px;
+     display:inline-block;line-height:1.5;white-space:nowrap}
+.c0{width:16%;font-weight:600} .cs{width:7%;font-size:18pt;text-align:center;color:var(--accent);font-weight:600}
+.c1{width:45%} .c2{width:32%;font-size:12.5pt}
+.why{font-size:9.2pt;color:#8d97a8;margin-top:5px;letter-spacing:-.01em;line-height:1.45}
+.why b{color:#6b7688;font-weight:600}
+@media print{.why{font-size:8.4pt}}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;margin:12px 0 10px}
+.tw table{margin:0}
+a.gobtn{display:inline-flex;align-items:center;gap:9px;margin-top:10px;
+  padding:10px 17px;background:var(--accent);color:#fff;border:none;border-radius:9px;
+  font-size:10.6pt;font-weight:700;letter-spacing:-.01em;text-decoration:none;
+  box-shadow:0 2px 6px rgba(179,0,94,.28);transition:.15s}
+a.gobtn:hover{background:#8f004b;box-shadow:0 4px 13px rgba(179,0,94,.4);transform:translateY(-1px)}
+a.gobtn .gi{font-size:12pt;line-height:1}
+a.gobtn .ga{font-size:12pt;font-weight:800}
+.note{font-size:10pt;color:var(--muted);margin:10px 0 0;line-height:1.6}
+
+/* 복사 상자 */
+.copybox{background:linear-gradient(180deg,#fff,#fafbfe);border:2px dashed var(--accent);
+  border-radius:12px;padding:20px 18px;font-size:21pt;line-height:2;text-align:center;
+  margin:14px 0;user-select:all;letter-spacing:.06em;color:#2a2f3a}
+
+a{color:var(--brand);text-decoration:none;border-bottom:1.5px solid #c5d5e8;padding-bottom:1px}
+a:hover{border-bottom-color:var(--brand)}
+.pagebreak{page-break-before:always;height:0}
+.mq-math-mode{font-size:1.16em;border:none!important}
+.mq-math-mode .mq-root-block{padding:0}
+.tex{display:inline-block}
+
+
+/* 푸터 */
+footer{margin-top:56px;border-top:3px solid var(--brand);padding:20px 0 44px;text-align:center}
+footer .fchk{display:inline-block;background:#eaf3ea;color:var(--ok);font-size:9.4pt;font-weight:700;
+  padding:4px 13px;border-radius:20px;margin-bottom:14px;letter-spacing:-.01em}
+footer .fwho{font-size:12.5pt;color:var(--ink);letter-spacing:-.01em;line-height:1.4}
+footer .fwho b{font-weight:800;margin-left:2px}
+footer .fyear{color:#9aa3b0;font-weight:600;margin-right:5px}
+footer .fbox{margin:18px auto 0;max-width:520px;padding:12px 20px;
+  background:var(--soft);border:1px solid var(--line);border-radius:9px;
+  font-size:10.2pt;color:var(--muted);line-height:1.6}
+
+@media print{
+  body{padding:0;font-size:10pt;max-width:none}
+  .hero{padding-top:0} h2{margin-top:20px} .copybox{font-size:16pt;padding:12px}
+  tbody tr:hover{background:none} footer{page-break-inside:avoid}
+  a{border-bottom:none}
+}
+@media (max-width:640px){
+  body{font-size:10.5pt;padding:0 14px} h1{font-size:20pt}
+  code{white-space:normal;word-break:break-all}
+  .c0,.c1,.c2,.cs{width:auto} .copybox{font-size:16pt}
+}
+</style></head><body>
+
+<div class="hero">
+<span class="eyebrow">중학교 수학 · Amplify Classroom</span>
+<h1>Amplify에 수학 기호 넣기</h1>
+<p class="sub">메모와 수식 답변에 수식 또는 수학 기호를 넣는 방법</p>
+</div>
+
+<div class="rule">
+<h3>두 가지 원칙</h3>
+<ol>
+<li><b>수식은 앞뒤를 백틱(<code>`</code>)으로 감싸 주세요.</b>
+    백틱은 키보드 <b>숫자 1 왼쪽</b> 키입니다. 감싸지 않으면 명령어가 글자 그대로 보입니다.</li>
+<li><b>기본적으로는 LaTeX 문법을 그대로 쓰시면 됩니다.</b>
+    다만 <b>교과서와 모양이 많이 다른 기호</b>는 명령어 대신
+    <b>기호를 그대로 복사해 넣는 편이 좋습니다.</b>
+    닮음·합동·평행이 여기에 해당합니다.</li>
+</ol>
+</div>
+
+<h2 class="a"><span class="n">1</span>명령어로 쓰는 것</h2>
+<div class="tw"><table><thead><tr><th>뜻</th><th>이렇게 입력하면</th><th>이렇게 보입니다</th></tr></thead>
+<tbody><tr><td class=c0>선분</td><td class=c1><code>`\overline{\mathrm{AB}}`</code></td><td class=c2><span class="tex">\overline{\mathrm{AB}}</span></td></tr><tr><td class=c0>선분 아랫줄</td><td class=c1><code>`\underline{\mathrm{CD}}`</code></td><td class=c2><span class="tex">\underline{\mathrm{CD}}</span></td></tr><tr><td class=c0>직선</td><td class=c1><code>`\overleftrightarrow{\mathrm{PQ}}`</code></td><td class=c2><span class="tex">\overleftrightarrow{\mathrm{PQ}}</span></td></tr><tr><td class=c0>호</td><td class=c1><code>`\overarc{\mathrm{AB}}`</code></td><td class=c2><span class="tex">\overarc{\mathrm{AB}}</span></td></tr><tr><td class=c0>삼각형</td><td class=c1><code>`\triangle\mathrm{ABC}`</code></td><td class=c2><span class="tex">\triangle\mathrm{ABC}</span></td></tr><tr><td class=c0>각</td><td class=c1><code>`\angle\mathrm{A}`</code></td><td class=c2><span class="tex">\angle\mathrm{A}</span></td></tr><tr><td class=c0>각의 크기</td><td class=c1><code>`\angle\mathrm{A}\ =\ 40\degree`</code></td><td class=c2><span class="tex">\angle\mathrm{A}\ =\ 40\degree</span></td></tr><tr><td class=c0>수직</td><td class=c1><code>`\overline{\mathrm{AB}}\ \perp\ \overline{\mathrm{CD}}`</code><div class="why">perp = <b>perp</b>endicular(수직)</div></td><td class=c2><span class="tex">\overline{\mathrm{AB}}\ \perp\ \overline{\mathrm{CD}}</span></td></tr><tr><td class=c0>평행사변형</td><td class=c1><code>`\parallelogram`</code></td><td class=c2><span class="tex">\parallelogram</span></td></tr><tr><td class=c0>원</td><td class=c1><code>`\bigcirc`</code></td><td class=c2><span class="tex">\bigcirc</span></td></tr><tr><td class=c0>꼭짓점 글자(필수)</td><td class=c1><code>`\mathrm{ABC}`</code><div class="why">mathrm = math + <b>r</b>o<b>m</b>an(로마체·곧은 서체)</div></td><td class=c2><span class="tex">\mathrm{ABC}</span></td></tr><tr><td class=c0>굵게</td><td class=c1><code>`\mathbf{\overline{\mathrm{AB}}}`</code><div class="why">mathbf = math + <b>b</b>old <b>f</b>ace(굵은 서체)</div></td><td class=c2><span class="tex">\mathbf{\overline{\mathrm{AB}}}</span></td></tr><tr><td class=c0>색 넣기</td><td class=c1><code>`\textcolor{red}{\overline{\mathrm{AG}}}`</code><div class="why">textcolor = 글자(text) 색(color)</div></td><td class=c2><span class="tex">\textcolor{red}{\overline{\mathrm{AG}}}</span></td></tr><tr><td class=c0>분수</td><td class=c1><code>`\frac{1}{2}`</code><div class="why">frac = <b>frac</b>tion(분수)</div></td><td class=c2><span class="tex">\frac{1}{2}</span></td></tr><tr><td class=c0>비를 분수로</td><td class=c1><code>`\frac{\overline{\mathrm{AG}}}{\overline{\mathrm{GD}}}\ =\ 2`</code></td><td class=c2><span class="tex">\frac{\overline{\mathrm{AG}}}{\overline{\mathrm{GD}}}\ =\ 2</span></td></tr><tr><td class=c0>제곱근</td><td class=c1><code>`\sqrt{2}`</code><div class="why">sqrt = <b>squ</b>are <b>r</b>oo<b>t</b>(제곱근)</div></td><td class=c2><span class="tex">\sqrt{2}</span></td></tr><tr><td class=c0>세제곱근</td><td class=c1><code>`\sqrt[3]{8}`</code></td><td class=c2><span class="tex">\sqrt[3]{8}</span></td></tr><tr><td class=c0>제곱</td><td class=c1><code>`24\mathrm{cm}^2`</code></td><td class=c2><span class="tex">24\mathrm{cm}^2</span></td></tr><tr><td class=c0>아래첨자</td><td class=c1><code>`a_1`</code></td><td class=c2><span class="tex">a_1</span></td></tr><tr><td class=c0>같지 않다</td><td class=c1><code>`\neq`</code><div class="why">neq = <b>n</b>ot <b>eq</b>ual</div></td><td class=c2><span class="tex">\neq</span></td></tr><tr><td class=c0>작거나 같다</td><td class=c1><code>`\leq`</code><div class="why">leq = <b>l</b>ess than or <b>eq</b>ual</div></td><td class=c2><span class="tex">\leq</span></td></tr><tr><td class=c0>크거나 같다</td><td class=c1><code>`\geq`</code><div class="why">geq = <b>g</b>reater than or <b>eq</b>ual</div></td><td class=c2><span class="tex">\geq</span></td></tr><tr><td class=c0>곱하기·나누기</td><td class=c1><code>`\times\ \div`</code></td><td class=c2><span class="tex">\times\ \div</span></td></tr><tr><td class=c0>무한대</td><td class=c1><code>`\infty`</code><div class="why">infty = <b>infi</b>ni<b>ty</b>(무한대)</div></td><td class=c2><span class="tex">\infty</span></td></tr><tr><td class=c0>비례식</td><td class=c1><code>`\overline{\mathrm{AB}}:\overline{\mathrm{DE}}\ =\ 2:3`</code></td><td class=c2><span class="tex">\overline{\mathrm{AB}}:\overline{\mathrm{DE}}\ =\ 2:3</span></td></tr></tbody></table></div>
+
+<h2 class="b"><span class="n">2</span>기호를 복사해 쓰는 것</h2>
+<p class="note">아래 기호들은 명령어가 통하지 않거나, 통해도 교과서와 모양이 다릅니다.
+<b>기호를 복사해서 수식 안에 넣어 주세요.</b></p>
+<div class="tw"><table><thead><tr><th>뜻</th><th>기호</th><th>이렇게 입력하면</th><th>이렇게 보입니다</th></tr></thead>
+<tbody><tr><td class=c0>닮음</td><td class=cs>∽</td><td class=c1><code>`\triangle\mathrm{ABC}\ ∽\ \triangle\mathrm{DEF}`</code></td><td class=c2><span class="tex">\triangle\mathrm{ABC}\ ∽\ \triangle\mathrm{DEF}</span></td></tr><tr><td class=c0>합동</td><td class=cs>≡</td><td class=c1><code>`\triangle\mathrm{ABC}\ ≡\ \triangle\mathrm{DEF}`</code></td><td class=c2><span class="tex">\triangle\mathrm{ABC}\ ≡\ \triangle\mathrm{DEF}</span></td></tr><tr><td class=c0>평행</td><td class=cs>⫽</td><td class=c1><code>`\overline{\mathrm{AB}}\ ⫽\ \overline{\mathrm{CD}}`</code></td><td class=c2><span class="tex">\overline{\mathrm{AB}}\ ⫽\ \overline{\mathrm{CD}}</span></td></tr><tr><td class=c0>따라서</td><td class=cs>∴</td><td class=c1><code>`∴\ \angle\mathrm{A}\ =\ \angle\mathrm{D}`</code></td><td class=c2><span class="tex">∴\ \angle\mathrm{A}\ =\ \angle\mathrm{D}</span></td></tr><tr><td class=c0>왜냐하면</td><td class=cs>∵</td><td class=c1><code>`∵\ \overline{\mathrm{AM}}\ =\ \overline{\mathrm{MB}}`</code></td><td class=c2><span class="tex">∵\ \overline{\mathrm{AM}}\ =\ \overline{\mathrm{MB}}</span></td></tr><tr><td class=c0>그러면</td><td class=cs>⇒</td><td class=c1><code>`\mathrm{A}\ ⇒\ \mathrm{B}`</code></td><td class=c2><span class="tex">\mathrm{A}\ ⇒\ \mathrm{B}</span></td></tr><tr><td class=c0>근삿값</td><td class=cs>≒</td><td class=c1><code>`\pi\ ≒\ 3.14`</code></td><td class=c2><span class="tex">\pi\ ≒\ 3.14</span></td></tr></tbody></table></div>
+
+<h2 class="b q" style="margin-top:26px">아래에서 기호를 복사해 쓰세요</h2>
+<div class="copybox">∽ &nbsp; ≡ &nbsp; ⫽ &nbsp; ∴ &nbsp; ∵ &nbsp; ⇒ &nbsp; ⇔ &nbsp; … &nbsp; ≒ &nbsp; ∝ &nbsp; ⊥ &nbsp; ∠ &nbsp; △ &nbsp; ▱ &nbsp; ⌒ &nbsp; ° &nbsp; ± &nbsp; × &nbsp; ÷ &nbsp; ≠ &nbsp; ≤ &nbsp; ≥ &nbsp; ∞</div>
+<p class="note">한 번 복사해 두시면 계속 쓰실 수 있습니다.
+그 밖에 한글에서 <b>ㄷ + 한자키</b>, 맥은 <b>Ctrl+Cmd+Space</b>, 윈도우는 <b>윈도우키 + 마침표</b>로도 넣으실 수 있습니다.</p>
+
+<h2 class="b q" style="margin-top:34px">왜 이 세 가지만 복사해서 쓰나요?</h2>
+<div class="tw"><table><thead><tr><th>기호</th><th>명령어를 쓰면</th><th>그래서</th></tr></thead><tbody>
+<tr><td class=c0>합동 ≡</td><td><code>\equiv</code> → 아무것도 나오지 않습니다</td><td>기호를 복사해 씁니다</td></tr>
+<tr><td class=c0>닮음 ∽</td><td><code>\sim</code> → <span class="tex">\sim</span> 물결표가 나옵니다</td><td>교과서 ∽와 다릅니다</td></tr>
+<tr><td class=c0>평행 ⫽</td><td><code>\parallel</code> → <span class="tex">\parallel</span> 곧은 두 줄이 나옵니다</td><td>교과서 ⫽는 기울어져 있습니다</td></tr>
+</tbody></table></div>
+<p class="note">닮음과 평행은 화면에 무언가 나오기 때문에 그냥 넘어가기 쉽습니다.
+교과서와 다른 기호를 학생이 보게 되므로 주의해 주세요.</p>
+
+<h2 class="c q" style="margin-top:34px">공백은 언제 넣나요?</h2>
+<p class="note" style="margin-bottom:10px">수식 안에서는 스페이스바를 눌러도 간격이 생기지 않습니다.
+띄우시려면 <code>\ </code>(백슬래시를 누르고 한 칸 띄우기)를 넣으셔야 합니다.</p>
+<div class="tw"><table><thead><tr><th>어디에</th><th>넣나요?</th><th>이렇게 보입니다</th></tr></thead><tbody>
+<tr><td class=c0>복사해 쓴 기호<br>(∽ ≡ ⫽ ∴)</td><td><b>꼭 넣어 주세요.</b> 넣지 않으면 달라붙습니다</td>
+    <td class=c2><span class="tex">\triangle\mathrm{ABC}\ ∽\ \triangle\mathrm{DEF}</span></td></tr>
+<tr><td class=c0>등호 =</td><td>넣으시면 보기 좋습니다</td>
+    <td class=c2><span class="tex">\overline{\mathrm{AM}}\ =\ \overline{\mathrm{MB}}</span></td></tr>
+<tr><td class=c0>+ − × ÷</td><td>넣지 않으셔도 됩니다. 자동으로 벌어집니다</td>
+    <td class=c2><span class="tex">a+b=c</span></td></tr>
+</tbody></table></div>
+<p class="note">넣지 않으시면 <span class="tex">\triangle\mathrm{ABC}∽\triangle\mathrm{DEF}</span> 처럼 달라붙습니다.</p>
+
+
+
+<h2 class="c q" style="margin-top:34px">글자 색과 크기는 어떻게 바꾸나요?</h2>
+<div class="tw"><table><thead><tr><th>어디에</th><th>방법</th></tr></thead><tbody>
+<tr><td class=c0>수식 안</td>
+    <td><code>`\textcolor{red}{\overline{\mathrm{AG}}}`</code> 처럼 쓰시면 됩니다 →
+    <span class="tex">\textcolor{red}{\overline{\mathrm{AG}}}</span>
+    &nbsp; <code>#2f6bd8</code> 같은 색 번호도 됩니다</td></tr>
+<tr class="hl"><td class=c0>일반 글자</td>
+    <td>명령어가 통하지 않습니다. <b>이미 꾸며진 글자를 복사해</b> 쓰셔야 합니다.
+    <a class="gobtn" href="index.html"><span class="gi">🎨</span><span class="gt">글자 꾸미기 페이지 열기</span><span class="ga">→</span></a></td></tr>
+</tbody></table></div>
+
+<footer>
+<div class="fchk">Amplify에 직접 넣어 화면으로 확인한 내용입니다</div>
+<div class="fwho"><span class="fyear">2026</span> 서울대학교사범대학부설중학교 <b>허철호</b></div>
+<div class="fbox">자유롭게 배포하셔도 됩니다. 다만 출처를 함께 표기해 주시기 바랍니다.</div>
+</footer>
+
+<script src="_mq/jquery.min.js"></script>
+<script src="_mq/mathquill.js"></script>
+<script>
+var MQ = MathQuill.getInterface(2);
+document.querySelectorAll('.tex').forEach(function(el){
+  var tex = el.textContent;
+  el.textContent = '';
+  var f = MQ.StaticMath(el);
+  f.latex(tex);
+});
+</script>
+</body></html>

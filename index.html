@@ -46,7 +46,22 @@
   .tipbox b{color:#2e7d32;}
   .warn { background:#ffebee; border-radius:10px; padding:14px 18px; font-size:13.5px; margin-top:12px; color:#b71c1c;}
   .warn b{color:#8b0000;}
-  footer.ftr { text-align:center; color:#90a4ae; font-size:13px; margin:34px 0 10px; letter-spacing:.3px;}
+  a.xlink { display:flex; align-items:center; gap:12px; text-decoration:none;
+  background:#fff; border:1px solid #d3e0da; border-left:5px solid #2e9e76; border-radius:12px;
+  padding:13px 18px; margin:0 0 18px; color:#24503f; transition:.15s;
+  box-shadow:0 1px 2px rgba(31,111,84,.06); }
+a.xlink:hover { border-color:#2e9e76; box-shadow:0 2px 8px rgba(31,111,84,.13); }
+.xi { flex:none; width:30px; height:30px; border-radius:8px; background:#eaf5f0; color:#1f6f54;
+  font-size:17px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.xt { flex:1; font-size:14.5px; }
+.xt b { color:#1f6f54; }
+.xa { flex:none; color:#2e9e76; font-size:17px; font-weight:800; }
+.ftr { text-align:center; margin:40px 0 10px; padding-top:22px; border-top:2px solid #dbe2e6; }
+.ftr .fwho { font-size:15px; color:#37474f; letter-spacing:-.2px; }
+.ftr .fwho b { font-weight:800; margin-left:2px; }
+.ftr .fyear { color:#9aa7b0; font-weight:600; margin-right:5px; }
+.ftr .fbox { margin:14px auto 0; max-width:480px; padding:11px 18px; background:#fff;
+  border:1px solid #dde4e8; border-radius:9px; font-size:13px; color:#78909c; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -56,6 +71,8 @@
   <h1>📝 데스모스 글자 꾸미기 — 복사해서 붙이세요</h1>
   <p>데스모스(Amplify) 텍스트(메모)는 글자를 잘 못 꾸밉니다. 하지만 <b>이미 꾸며진 글자를 복사해서 붙이면</b> 그대로 들어가요.</p>
 </header>
+
+<a class="xlink" href="math.html"><span class="xi">√</span><span class="xt"><b>수식·수학 기호</b>를 넣으시려면 — 선분·닮음·분수</span><span class="xa">→</span></a>
 
 <div class="intro">
   <b>사용법 — 딱 3단계</b>
@@ -160,7 +177,10 @@
   <b>❌ 이렇게 하면 안 돼요:</b> 데스모스 메모에 <code>## 제목</code>, <code>&lt;span style="color:red"&gt;</code> 같은 걸 <b>직접 타이핑</b>하면 그 기호가 글자로 그대로 보입니다. 꼭 <b>이 페이지에서 꾸며진 글자를 복사</b>해 가세요.
 </div>
 
-<footer class="ftr">2026 서울사대부중 허철호</footer>
+<footer class="ftr">
+  <div class="fwho"><span class="fyear">2026</span> 서울대학교사범대학부설중학교 <b>허철호</b></div>
+  <div class="fbox">자유롭게 배포하셔도 됩니다. 다만 출처를 함께 표기해 주시기 바랍니다.</div>
+</footer>
 
 </div>
 </body>
