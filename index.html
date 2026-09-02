@@ -46,16 +46,19 @@
   .tipbox b{color:#2e7d32;}
   .warn { background:#ffebee; border-radius:10px; padding:14px 18px; font-size:13.5px; margin-top:12px; color:#b71c1c;}
   .warn b{color:#8b0000;}
-  a.xlink { display:flex; align-items:center; gap:12px; text-decoration:none;
-  background:#fff; border:1px solid #d3e0da; border-left:5px solid #2e9e76; border-radius:12px;
-  padding:13px 18px; margin:0 0 18px; color:#24503f; transition:.15s;
-  box-shadow:0 1px 2px rgba(31,111,84,.06); }
-a.xlink:hover { border-color:#2e9e76; box-shadow:0 2px 8px rgba(31,111,84,.13); }
-.xi { flex:none; width:30px; height:30px; border-radius:8px; background:#eaf5f0; color:#1f6f54;
-  font-size:17px; font-weight:800; display:flex; align-items:center; justify-content:center; }
-.xt { flex:1; font-size:14.5px; }
-.xt b { color:#1f6f54; }
-.xa { flex:none; color:#2e9e76; font-size:17px; font-weight:800; }
+  a.xlink { display:flex; align-items:center; gap:15px; text-decoration:none;
+  background:linear-gradient(120deg,#1f6f54,#2e9e76); color:#fff;
+  border:none; border-radius:14px; padding:17px 22px; margin:0 0 20px;
+  box-shadow:0 4px 14px rgba(31,111,84,.28); transition:.18s; }
+a.xlink:hover { box-shadow:0 7px 22px rgba(31,111,84,.42); transform:translateY(-2px); }
+.xi { flex:none; width:42px; height:42px; border-radius:11px; background:rgba(255,255,255,.19);
+  color:#fff; font-size:21px; font-weight:800; display:flex; align-items:center;
+  justify-content:center; letter-spacing:-1px; }
+.xt { flex:1; font-size:15.5px; font-weight:600; line-height:1.45; }
+.xt b { font-weight:800; }
+.xt em { display:block; font-style:normal; font-size:12.5px; opacity:.82; font-weight:400; margin-top:2px; }
+.xa { flex:none; background:#fff; color:#1f6f54; font-size:13.5px; font-weight:800;
+  padding:9px 16px; border-radius:9px; white-space:nowrap; }
 .ftr { text-align:center; margin:40px 0 10px; padding-top:22px; border-top:2px solid #dbe2e6; }
 .ftr .fwho { font-size:15px; color:#37474f; letter-spacing:-.2px; }
 .ftr .fwho b { font-weight:800; margin-left:2px; }
@@ -72,7 +75,7 @@ a.xlink:hover { border-color:#2e9e76; box-shadow:0 2px 8px rgba(31,111,84,.13); 
   <p>데스모스(Amplify) 텍스트(메모)는 글자를 잘 못 꾸밉니다. 하지만 <b>이미 꾸며진 글자를 복사해서 붙이면</b> 그대로 들어가요.</p>
 </header>
 
-<a class="xlink" href="math.html"><span class="xi">√</span><span class="xt"><b>수식·수학 기호</b>를 넣으시려면 — 선분·닮음·분수</span><span class="xa">→</span></a>
+<a class="xlink" href="math.html"><span class="xi">√<span class="xibar"></span></span><span class="xt"><b>수식·수학 기호</b>는 여기서 —— 선분 · 닮음 · 분수 · 각도<em>명령어 25개 + 복사용 기호 모음</em></span><span class="xa">바로가기 →</span></a>
 
 <div class="intro">
   <b>사용법 — 딱 3단계</b>
