@@ -9,7 +9,8 @@
 //
 // 자기 키를 쓰는 사용자는 이 함수를 거치지 않고 브라우저에서 직접 호출한다.
 
-const MODEL = 'gemini-2.5-flash';
+// 모델 이름은 바뀐다. 환경변수로 바꿀 수 있게 두었다(Vercel 대시보드에서 GEMINI_MODEL).
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.7-flash';
 
 export default async function handler(req, res) {
   // 이 프록시는 공개 페이지에서 부른다 — GitHub Pages 출처만 허용
@@ -47,7 +48,11 @@ export default async function handler(req, res) {
     return res.status(413).json({ error: '이미지가 너무 큽니다. 더 작게 잘라서 올려 주세요.' });
   }
 
-  try {
+  const busy = (m) => /high demand|overload|temporar|try again|rate.?limit|quota|resource.?exhaust|unavailable|429|503|529|timeout|deadline/i.test(String(m || ''));
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // 구글 쪽이 붐벼 실패하는 일이 잦다 — 그런 오류면 조금 기다렸다 다시 해 본다
+  const call = async () => {
     const r = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
       {
@@ -67,11 +72,26 @@ export default async function handler(req, res) {
     const data = await r.json();
     if (!r.ok) {
       // 구글이 준 오류를 그대로 넘기되, 키가 섞여 나가지 않게 메시지만 추린다
-      const msg = data?.error?.message || '변환에 실패했습니다.';
-      return res.status(r.status).json({ error: msg });
+      const e = new Error(data?.error?.message || '변환에 실패했습니다.');
+      e.status = r.status;
+      throw e;
     }
-    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || '';
-    return res.status(200).json({ text });
+    return data?.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || '';
+  };
+
+  try {
+    const delays = [1500, 4000];
+    let last;
+    for (let i = 0; i <= delays.length; i++) {
+      try {
+        return res.status(200).json({ text: await call() });
+      } catch (e) {
+        last = e;
+        if (i === delays.length || !busy(e.message)) break;
+        await wait(delays[i]);
+      }
+    }
+    return res.status(last?.status || 502).json({ error: last?.message || '변환에 실패했습니다.' });
   } catch (e) {
     return res.status(502).json({ error: '변환 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.' });
   }

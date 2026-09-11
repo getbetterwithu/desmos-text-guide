@@ -69,27 +69,48 @@ newone:{ name:'표시 이름', model:'기본모델', kind:'openai',
 
 키 발급 안내: [노션 페이지](https://juneywooky.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a)
 
-### 공유 키 (선택)
+### 공유 키 (선택) — Vercel 프록시
 
-암호를 아는 사람이 관리자 키로 쓰게 하려면 Vercel 프록시를 연결합니다.
-키가 브라우저에 노출되지 않도록 서버를 거치는 구조입니다.
+암호를 아는 사람이 관리자 키로 쓰게 하는 기능입니다.
+키가 브라우저에 노출되지 않도록 서버(Vercel)를 거칩니다.
 
-1. [vercel.com](https://vercel.com)에서 이 레포를 Import
-2. 환경변수 2개 등록
-   - `GEMINI_API_KEY` — 공유용 키 (주력 키 말고 이 용도로 새로 발급 권장)
-   - `SHARE_PASSWORD` — 공유 암호
-3. 배포 후 나온 주소로 `shared-config.js` 작성 (`shared-config.example.js` 참고)
+**1. Vercel에 레포 연결**
+
+[vercel.com/new](https://vercel.com/new) → GitHub 계정 연결 → `desmos-text-guide` Import
+→ 설정은 건드리지 말고 **Deploy**. (프레임워크 자동 감지 = Other 로 두면 됩니다.)
+
+**2. 환경변수 등록**
+
+Settings → Environment Variables 에서 두 개를 넣습니다.
+
+| 이름 | 값 |
+|---|---|
+| `GEMINI_API_KEY` | 공유용 Gemini 키 — **주력 키 말고 새로 발급하세요** |
+| `SHARE_PASSWORD` | 나눠주실 암호 (예: `snums2026`) |
+| `GEMINI_MODEL` | (선택) 기본값 `gemini-3.7-flash` |
+
+넣은 뒤 Deployments → 최신 배포 → **Redeploy** 해야 반영됩니다.
+
+**3. 주소를 페이지에 알려주기**
+
+배포가 끝나면 `https://<프로젝트>.vercel.app` 주소가 나옵니다.
+`shared-config.example.js` 를 복사해 `shared-config.js` 를 만들고 주소를 넣습니다.
 
 ```js
 window.SHARE_ENDPOINT = "https://<프로젝트>.vercel.app/api/convert";
 ```
 
-`shared-config.js`는 gitignore 대상입니다. GitHub Pages에만 올리려면
-`git add -f shared-config.js` 로 강제 추가하거나, 파일 없이 두면
-공유 탭이 자동으로 숨겨집니다.
+이 파일은 `.gitignore` 대상이라 레포에 올라가지 않습니다.
+GitHub Pages 에만 올리려면 `git add -f shared-config.js` 로 강제 추가하세요.
+파일이 없으면 페이지에서 **공유 탭이 자동으로 숨습니다.**
 
 > 공유 키에는 [Google Cloud 콘솔](https://console.cloud.google.com/apis/credentials)에서
-> 일일 사용량 상한을 걸어두시길 권합니다.
+> **일일 사용량 상한**을 걸어두시길 권합니다. 암호가 퍼져도 한도까지만 나갑니다.
+
+**프록시가 하는 일** (`api/convert.js`)
+- 암호가 맞을 때만 관리자 키로 Gemini 를 부릅니다 (키는 응답에 담기지 않습니다)
+- GitHub Pages 출처에서 온 요청만 받습니다
+- 이미지 6MB 상한 · 혼잡 시 1.5초·4초 간격으로 두 번 재시도
 
 ## 수식 미리보기
 
