@@ -28,8 +28,20 @@ h2 .n{display:inline-block;width:26px;height:26px;border-radius:7px;color:#fff;b
   text-align:center;cursor:pointer;transition:.15s;margin:14px 0}
 #drop:hover,#drop.over{border-color:var(--brand);background:#eef4fb}
 #drop .big{font-size:30pt;line-height:1;margin-bottom:10px}
-#drop .t1{font-size:12.5pt;font-weight:700;margin-bottom:4px}
-#drop .t2{font-size:10pt;color:var(--muted)}
+#drop .t1{font-size:12.5pt;font-weight:700;margin-bottom:7px;letter-spacing:-.02em}
+#drop .t2{font-size:10.6pt;color:#39435c;margin-bottom:12px}
+#drop .t2 b{color:var(--brand)}
+#drop .t3{font-size:9.6pt;color:var(--muted);margin-bottom:11px;
+  display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+#drop .t3 span{background:#fff;border:1px solid var(--line);border-radius:7px;padding:5px 11px}
+#drop .t3 b{color:#39435c;margin-right:3px}
+#drop kbd{font-family:inherit;font-size:8.8pt;background:#eef1f6;border:1px solid #d4dbe6;
+  border-bottom-width:2px;border-radius:4px;padding:1px 5px;margin:0 1px;color:#39435c;font-weight:700}
+#drop .t4{font-size:9.6pt;color:var(--muted);padding-top:10px;border-top:1px dashed #d9e0ea;
+  max-width:430px;margin:0 auto}
+/* 쓰시는 컴퓨터에 맞는 안내만 보여 준다 */
+body.is-mac #drop .w, body:not(.is-mac) #drop .m{display:none}
+body:not(.is-mac) #drop .mac{display:none}
 #preview{display:none;margin:14px 0}
 #preview img{max-width:100%;border:1px solid var(--line);border-radius:10px;display:block}
 .pbar{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
@@ -146,8 +158,13 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
 <h2><span class="n">1</span>교과서 사진 넣기</h2>
 <div id="drop">
   <div class="big">📋</div>
-  <div class="t1">여기에 붙여넣기 (⌘V / Ctrl+V)</div>
-  <div class="t2">사진을 끌어다 놓거나, 눌러서 파일을 고르셔도 됩니다</div>
+  <div class="t1">이미지 또는 캡처한 화면을 복사하신 후 여기에 붙여넣으세요</div>
+  <div class="t2"><b>Ctrl+C</b>로 복사 → <b>Ctrl+V</b>로 붙여넣기 <span class="mac">(맥은 ⌘C → ⌘V)</span></div>
+  <div class="t3">
+    <span class="w"><b>화면 캡처</b> 윈도우 <kbd>윈도우키</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
+    <span class="m"><b>화면 캡처</b> 맥 <kbd>⌘</kbd>+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd></span>
+  </div>
+  <div class="t4">사진 파일을 <b>끌어다 놓거나</b>, 이 상자를 <b>눌러서 파일을 고르셔도</b> 됩니다</div>
 </div>
 <input type="file" id="file" accept="image/*" hidden>
 <div id="preview">
@@ -211,6 +228,8 @@ var PROV = {
 try{var s=JSON.parse(localStorage.getItem(K)||'null'); if(s)cfg=Object.assign(cfg,s);}catch(e){}
 
 var $=function(id){return document.getElementById(id)};
+/* 맥이면 단축키 안내를 맥 것으로 바꾼다 */
+if(/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent))document.body.classList.add('is-mac');
 var MQ=MathQuill.getInterface(2);
 
 /* ── 설정 ── */
