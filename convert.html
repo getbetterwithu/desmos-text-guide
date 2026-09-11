@@ -109,17 +109,20 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
 
     <div class="pane2 on" id="p-mine">
       <label class="f">어느 AI를 쓰시겠습니까?</label>
-      <select id="prov">
-        <option value="gemini">Google Gemini — 무료 등급이 있어 시작하기 쉽습니다</option>
-        <option value="openai">OpenAI (ChatGPT)</option>
-        <option value="claude">Anthropic Claude</option>
-      </select>
+      <select id="prov"></select>
+      <div class="note" id="provnote"></div>
+      <div id="modelrow" style="display:none">
+        <label class="f">모델 이름</label>
+        <input type="text" id="model" placeholder="예: gemini-2.5-flash" autocomplete="off" spellcheck="false">
+        <div class="note">기본값으로 두셔도 됩니다. 새 모델이 나왔을 때 바꾸시면 됩니다.</div>
+      </div>
+      <div id="customrow" style="display:none">
+        <label class="f">API 주소 (OpenAI 호환)</label>
+        <input type="text" id="endpoint" placeholder="https://api.example.com/v1/chat/completions" autocomplete="off" spellcheck="false">
+        <div class="note">OpenAI와 같은 형식을 쓰는 서비스라면 주소만 넣으시면 됩니다.</div>
+      </div>
       <label class="f">API 키</label>
       <input type="password" id="key" placeholder="키를 붙여넣으세요" autocomplete="off" spellcheck="false">
-      <div class="note" id="keyhelp">
-        키가 없으시면 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 무료로 받으실 수 있습니다.
-        <a href="#" id="guidelink" target="_blank" rel="noopener">발급 절차 자세히 보기 →</a>
-      </div>
       <div class="warn">키는 <b>이 브라우저에만</b> 저장되며 어디로도 전송되지 않습니다.
         다만 공용 컴퓨터에서는 다른 사람이 개발자도구로 볼 수 있으니 쓰지 마시기 바랍니다.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
@@ -185,8 +188,26 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
 (function(){
 'use strict';
 var PROMPT = "당신은 중학교 수학 교과서 지면을 Amplify Classroom(Desmos)에 넣을 수 있는 형태로 옮기는 일을 합니다.\n이미지에 보이는 수학 내용을 아래 규칙에 따라 그대로 옮겨 주세요.\n\n[가장 중요한 원칙]\n1. 수식은 앞뒤를 백틱(`)으로 감쌉니다.\n2. 기본은 LaTeX 문법입니다. 다만 교과서와 모양이 다른 기호는 명령어 대신 특수문자를 수식 안에 직접 넣습니다.\n3. 이미지에 있는 내용만 옮깁니다. 없는 것을 지어내지 않고, 있는 것을 빠뜨리지 않습니다.\n4. 한글 설명은 백틱 밖에 그대로 둡니다. 수식만 백틱으로 감쌉니다.\n\n[명령어로 쓰는 것]\n선분 \\overline{\\mathrm{AB}} · 아랫줄 \\underline{} · 직선 \\overleftrightarrow{\\mathrm{PQ}} · 호 \\overarc{\\mathrm{AB}}\n삼각형 \\triangle · 각 \\angle · 도 \\degree · 수직 \\perp · 평행사변형 \\parallelogram · 원 \\bigcirc\n분수 \\frac{}{} · 제곱근 \\sqrt{} · 세제곱근 \\sqrt[3]{} · 지수 ^2 ^{10} · 아래첨자 _1 _{12}\n\\neq \\leq \\geq · \\pm \\mp · \\times \\div \\cdot · \\infty · \\to\n굵게 \\mathbf{} · 색 \\textcolor{red}{} 또는 \\textcolor{#2f6bd8}{}\n비례식은 콜론을 그대로 씁니다: `2:3` 또는 `c\\ :\\ a\\ =\\ a\\ :\\ b`\n\n[반드시 특수문자를 직접 넣는 것 — 명령어를 쓰면 안 됩니다]\n닮음 ∽   (\\sim, \\backsim 금지 — 물결표라 교과서와 다릅니다)\n합동 ≡   (\\equiv 금지 — 렌더되지 않습니다)\n평행 ⫽   (\\parallel 금지 — 곧은 두 줄이라 교과서와 다릅니다)\n따라서 ∴  왜냐하면 ∵  함의 ⇒  동치 ⇔  근삿값 ≒  비례 ∝\n\n[렌더되지 않으므로 쓰지 말 것]\n\\therefore \\because \\Rightarrow \\Leftrightarrow \\equiv \\ldots \\cdots \\propto \\bot \\backsim \\text{} \\underbrace{} \\quad \\lim \\cbrt\n\\dfrac \\cfrac 는 \\frac 과 크기가 같으므로 \\frac 만 씁니다.\n\n[꼭짓점 글자]\nA, B, C 같은 점 이름은 반드시 \\mathrm{} 으로 감쌉니다. 쓰지 않으면 이탤릭이라 교과서 표기와 다릅니다.\n예: \\triangle\\mathrm{ABC}, \\angle\\mathrm{ACB}, \\overline{\\mathrm{BD}}\n단, a b c x y 같은 변·변수 문자는 \\mathrm 을 쓰지 않습니다(교과서도 이탤릭입니다).\n\n[공백 \\ (백슬래시+공백)]\n특수문자(∽ ≡ ⫽ ∴ ∵ ⇒) 앞뒤 → 반드시 넣습니다. 없으면 글자가 달라붙습니다.\n등호 = 와 비례식 콜론 : 앞뒤 → 넣습니다.\n+ − × ÷ → 넣지 않습니다. 자동으로 벌어집니다.\n\n[백틱 밖에 두는 것]\n말줄임표(…… ①), (AA 닮음) 같은 한글 괄호 설명, 번호표는 수식이 아니므로 백틱 밖에 둡니다.\n\\text{} 가 렌더되지 않으므로 수식 안에 한글을 넣지 마세요.\n\n[출력 형식]\n- 교과서의 줄바꿈과 들여쓰기를 그대로 살립니다.\n- 설명, 머리말, 코드펜스(```) 없이 변환 결과만 출력합니다.\n- 이미지에 수학 내용이 없으면 \"이미지에서 수학 내용을 찾지 못했습니다.\"라고만 답합니다.";
-var K='dtg_conv_v1';
-var cfg={mode:'mine',prov:'gemini',key:'',pass:''};
+var GUIDE=window.GUIDE_URL||'https://getbetterwithu.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a';
+var K='dtg_conv_v2';
+var cfg={mode:'mine',prov:'gemini',key:'',pass:'',model:'',endpoint:''};
+
+/* 브라우저에서 직접 부를 수 있는 곳만 넣었다 (CORS 실측 확인 2026-09-11).
+   모델은 자주 바뀌므로 기본값만 두고, 바꾸실 수 있게 칸을 열어 두었다. */
+var PROV = {
+  gemini:{ name:'Google Gemini', tag:'무료 등급 있음', model:'gemini-2.5-flash', kind:'gemini',
+    url:'https://aistudio.google.com/apikey', note:'무료 등급이 있어 시작하기 쉽습니다. 이 도구에는 이 쪽을 권합니다.' },
+  upstage:{ name:'Upstage Solar', tag:'국내', model:'solar-pro4', kind:'openai',
+    ep:'https://api.upstage.ai/v1/chat/completions',
+    url:'https://console.upstage.ai/api-keys', note:'국내 서비스입니다. 이미지를 읽으려면 Solar Pro 4 이상이어야 합니다.' },
+  openai:{ name:'OpenAI (ChatGPT)', model:'gpt-4o', kind:'openai',
+    ep:'https://api.openai.com/v1/chat/completions',
+    url:'https://platform.openai.com/api-keys', note:'유료입니다.' },
+  claude:{ name:'Anthropic Claude', model:'claude-sonnet-5', kind:'claude',
+    url:'https://console.anthropic.com/settings/keys', note:'유료입니다.' },
+  custom:{ name:'직접 입력 (학교·기관에서 받은 주소)', model:'', kind:'openai', ep:'', custom:true,
+    note:'학교나 기관에서 API 주소를 받으셨다면 여기에 넣어 쓰실 수 있습니다. OpenAI와 같은 형식이면 됩니다.' }
+};
 try{var s=JSON.parse(localStorage.getItem(K)||'null'); if(s)cfg=Object.assign(cfg,s);}catch(e){}
 
 var $=function(id){return document.getElementById(id)};
@@ -196,8 +217,22 @@ var MQ=MathQuill.getInterface(2);
 function badge(){
   var b=$('badge');
   if(cfg.mode==='share'&&cfg.pass){b.className='badge share';b.textContent='공유 암호 사용 중';}
-  else if(cfg.mode==='mine'&&cfg.key){b.className='badge mine';b.textContent=({gemini:'Gemini',openai:'OpenAI',claude:'Claude'})[cfg.prov]+' 연결됨';}
+  else if(cfg.mode==='mine'&&cfg.key){b.className='badge mine';
+    b.textContent=((PROV[cfg.prov]||{}).name||cfg.prov)+' 연결됨';}
   else {b.className='badge none';b.textContent='설정 필요';}
+}
+/* 고른 곳에 맞춰 칸을 보여 준다 */
+function paintProv(){
+  var v=$('prov').value, P=PROV[v]||{};
+  $('provnote').innerHTML = (P.note||'') +
+    (P.url?' <a href="'+P.url+'" target="_blank" rel="noopener">키 받으러 가기 →</a>':'') +
+    (v==='gemini'?' <a href="'+GUIDE+'" target="_blank" rel="noopener">발급 절차 자세히 보기 →</a>':'');
+  $('modelrow').style.display='block';
+  $('customrow').style.display=P.custom?'block':'none';
+  if(!$('model').value||$('model').dataset.auto==='1'){
+    $('model').value=P.model||''; $('model').dataset.auto='1';
+  }
+  $('model').placeholder=P.model||'모델 이름을 넣어 주세요';
 }
 function ready(){return (cfg.mode==='mine'&&cfg.key)||(cfg.mode==='share'&&cfg.pass);}
 function store(){try{localStorage.setItem(K,JSON.stringify(cfg));}catch(e){}}
@@ -210,18 +245,27 @@ Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){
     $('p-share').classList.toggle('on',t.dataset.t==='share');
   });
 });
-$('prov').addEventListener('change',function(){
-  var h={gemini:'키가 없으시면 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 무료로 받으실 수 있습니다. <a href="#" id="guidelink">발급 절차 자세히 보기 →</a>',
-         openai:'<a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI 대시보드</a>에서 키를 만드실 수 있습니다. (유료)',
-         claude:'<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic 콘솔</a>에서 키를 만드실 수 있습니다. (유료)'};
-  $('keyhelp').innerHTML=h[this.value];
+Object.keys(PROV).forEach(function(k){
+  var o=document.createElement('option'); o.value=k;
+  o.textContent=PROV[k].name + (PROV[k].tag?' — '+PROV[k].tag:'');
+  $('prov').appendChild(o);
 });
+$('prov').addEventListener('change',function(){
+  $('model').dataset.auto='1';   /* 곳을 바꾸면 모델도 그 곳 기본값으로 */
+  paintProv();
+});
+$('model').addEventListener('input',function(){this.dataset.auto='0';});
 
 $('save').addEventListener('click',async function(){
   var k=$('key').value.trim();
   if(!k){msg('err','키를 입력해 주세요.');return;}
   this.disabled=true;var old=this.textContent;this.textContent='확인 중…';
   cfg.mode='mine';cfg.prov=$('prov').value;cfg.key=k;
+  cfg.model=$('model').value.trim()||(PROV[cfg.prov]||{}).model||'';
+  cfg.endpoint=$('endpoint').value.trim();
+  if((PROV[cfg.prov]||{}).custom&&!cfg.endpoint){
+    this.disabled=false;this.textContent=old;msg('err','API 주소를 넣어 주세요.');return;}
+  if(!cfg.model){this.disabled=false;this.textContent=old;msg('err','모델 이름을 넣어 주세요.');return;}
   var r=await test();
   this.disabled=false;this.textContent=old;
   if(r===true){store();badge();msg('ok','연결되었습니다. 이제 사진을 넣어 주세요.');$('setup').open=false;}
@@ -240,23 +284,59 @@ function msg(k,t){var s=$('status');s.className=k;s.innerHTML=t;}
 
 /* ── 연결 확인 ── */
 async function test(){
+  /* 1x1 흰 점 한 장을 보내 본다 — 키뿐 아니라 '이미지를 읽는 모델인가'까지 걸러진다 */
+  var PX='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
   try{
-    if(cfg.prov==='gemini'){
-      var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(cfg.key));
-      if(r.ok)return true; var d=await r.json().catch(function(){return{}});
-      return (d.error&&d.error.message)||('오류 '+r.status);
-    }
-    if(cfg.prov==='openai'){
-      var r2=await fetch('https://api.openai.com/v1/models',{headers:{authorization:'Bearer '+cfg.key}});
-      if(r2.ok)return true; return '키를 확인해 주세요 (오류 '+r2.status+')';
-    }
-    var r3=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    var out=await callAI('.', {data:PX, mime:'image/png'}, 8);
+    return true;
+  }catch(e){
+    var m=String(e.message||e);
+    if(/image|vision|multimodal|modal/i.test(m)) return '이 모델은 이미지를 읽지 못합니다. 다른 모델 이름을 넣어 주세요.';
+    return m;
+  }
+}
+
+/* 한 곳에서 모든 제공자를 부른다 — 새 서비스는 PROV 에 줄만 더하면 된다 */
+async function callAI(prompt, im, maxTok){
+  var P=PROV[cfg.prov]||{}, kind=P.kind||'openai';
+  var model=cfg.model||P.model;
+  var ep=(P.custom?cfg.endpoint:P.ep);
+
+  if(kind==='gemini'){
+    var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+
+        encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(cfg.key),
+      {method:'POST',headers:{'content-type':'application/json'},
+       body:JSON.stringify({contents:[{parts:[{text:prompt},
+         {inline_data:{mime_type:im.mime,data:im.data}}]}],
+         generationConfig:{temperature:0}})});
+    var d=await r.json().catch(function(){return{}});
+    if(!r.ok)throw new Error((d.error&&d.error.message)||('오류 '+r.status));
+    var ps=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts;
+    return ps?ps.map(function(x){return x.text||''}).join(''):'';
+  }
+
+  if(kind==='claude'){
+    var r2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'content-type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01',
                'anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-5',max_tokens:1,messages:[{role:'user',content:'.'}]})});
-    if(r3.ok||r3.status===400)return true;
-    return '키를 확인해 주세요 (오류 '+r3.status+')';
-  }catch(e){return '네트워크에 연결하지 못했습니다.';}
+      body:JSON.stringify({model:model,max_tokens:maxTok||2000,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:im.mime,data:im.data}},
+        {type:'text',text:prompt}]}]})});
+    var d2=await r2.json().catch(function(){return{}});
+    if(!r2.ok)throw new Error((d2.error&&d2.error.message)||('오류 '+r2.status));
+    return (d2.content||[]).map(function(x){return x.text||''}).join('');
+  }
+
+  /* OpenAI 호환 — OpenAI·Upstage·학교에서 받은 주소가 모두 여기로 온다 */
+  if(!ep)throw new Error('API 주소가 없습니다.');
+  var r3=await fetch(ep,{method:'POST',
+    headers:{'content-type':'application/json',authorization:'Bearer '+cfg.key},
+    body:JSON.stringify({model:model,temperature:0,max_tokens:maxTok||2000,
+      messages:[{role:'user',content:[{type:'text',text:prompt},
+        {type:'image_url',image_url:{url:'data:'+im.mime+';base64,'+im.data}}]}]})});
+  var d3=await r3.json().catch(function(){return{}});
+  if(!r3.ok)throw new Error((d3.error&&(d3.error.message||d3.error))||('오류 '+r3.status));
+  return (d3.choices&&d3.choices[0]&&d3.choices[0].message&&d3.choices[0].message.content)||'';
 }
 
 /* ── 이미지 ── */
@@ -311,35 +391,7 @@ async function convert(){
     if(!r.ok)throw new Error(d.error||('오류 '+r.status));
     return d.text||'';
   }
-  if(cfg.prov==='gemini'){
-    var r1=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(cfg.key),
-      {method:'POST',headers:{'content-type':'application/json'},
-       body:JSON.stringify({contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:img.mime,data:img.data}}]}],
-                            generationConfig:{temperature:0}})});
-    var d1=await r1.json().catch(function(){return{}});
-    if(!r1.ok)throw new Error((d1.error&&d1.error.message)||('오류 '+r1.status));
-    var p=d1.candidates&&d1.candidates[0]&&d1.candidates[0].content&&d1.candidates[0].content.parts;
-    return p?p.map(function(x){return x.text||''}).join(''):'';
-  }
-  if(cfg.prov==='openai'){
-    var r2=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
-      headers:{'content-type':'application/json',authorization:'Bearer '+cfg.key},
-      body:JSON.stringify({model:'gpt-4o',temperature:0,messages:[{role:'user',content:[
-        {type:'text',text:PROMPT},
-        {type:'image_url',image_url:{url:'data:'+img.mime+';base64,'+img.data}}]}]})});
-    var d2=await r2.json().catch(function(){return{}});
-    if(!r2.ok)throw new Error((d2.error&&d2.error.message)||('오류 '+r2.status));
-    return d2.choices[0].message.content;
-  }
-  var r3=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-    headers:{'content-type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01',
-             'anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-5',max_tokens:2000,messages:[{role:'user',content:[
-      {type:'image',source:{type:'base64',media_type:img.mime,data:img.data}},
-      {type:'text',text:PROMPT}]}]})});
-  var d3=await r3.json().catch(function(){return{}});
-  if(!r3.ok)throw new Error((d3.error&&d3.error.message)||('오류 '+r3.status));
-  return d3.content.map(function(x){return x.text||''}).join('');
+  return await callAI(PROMPT,img,2000);
 }
 
 /* ── 미리보기 — Amplify와 같은 MathQuill로 그린다 ── */
@@ -378,13 +430,11 @@ if(!SHARE_ENDPOINT){
   // 공유 기능이 아직 연결되지 않았으면 그 탭을 숨긴다
   var st=document.querySelector('.tab[data-t="share"]'); if(st)st.style.display='none';
 }
-var GUIDE=window.GUIDE_URL||'https://getbetterwithu.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a';
-Array.prototype.forEach.call(document.querySelectorAll('#guidelink'),function(g){g.href=GUIDE;g.target='_blank';g.rel='noopener';});
-// 제공자를 바꿔 안내문이 새로 그려질 때도 링크를 다시 걸어 준다
-$('prov').addEventListener('change',function(){
-  var g=$('guidelink'); if(g){g.href=GUIDE;g.target='_blank';g.rel='noopener';}
-});
-$('prov').value=cfg.prov;
+
+$('prov').value=(PROV[cfg.prov]?cfg.prov:'gemini');
+if(cfg.model){$('model').value=cfg.model;$('model').dataset.auto='0';}
+if(cfg.endpoint)$('endpoint').value=cfg.endpoint;
+paintProv();
 if(cfg.key)$('key').value=cfg.key;
 if(cfg.pass)$('pass').value=cfg.pass;
 if(cfg.mode==='share'){var sh=document.querySelector('.tab[data-t="share"]'); if(sh)sh.click();}
