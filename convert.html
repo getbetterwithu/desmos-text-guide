@@ -98,6 +98,10 @@ input[type=text],input[type=password],select{width:100%;font-family:inherit;font
 input:focus,select:focus{border-color:var(--brand)}
 .note{font-size:9.5pt;color:var(--muted);margin-top:6px;line-height:1.62}
 .note a{color:var(--brand)}
+.smsg{display:none;margin-top:12px;padding:11px 15px;border-radius:9px;font-size:10.2pt;line-height:1.6}
+.smsg.ok{display:block;background:#e8f6f0;border:1px solid #b6e3ce;color:var(--ok)}
+.smsg.err{display:block;background:#fdecee;border:1px solid #f3c3c8;color:#b02020}
+.smsg.go{display:block;background:#eef4fb;border:1px solid #c3d9f0;color:var(--brand)}
 .warn{background:#fffdf5;border:1px solid #ecdfae;border-radius:10px;padding:11px 15px;margin:12px 0;
   font-size:9.8pt;color:#7a5200;line-height:1.65}
 footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-size:9.5pt;color:var(--muted)}
@@ -125,13 +129,18 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
       <div class="note" id="provnote"></div>
       <div id="modelrow" style="display:none">
         <label class="f">모델 이름</label>
-        <input type="text" id="model" placeholder="예: gemini-2.5-flash" autocomplete="off" spellcheck="false">
-        <div class="note">기본값으로 두셔도 됩니다. 새 모델이 나왔을 때 바꾸시면 됩니다.</div>
+        <div style="display:flex;gap:7px;align-items:stretch">
+          <input type="text" id="model" placeholder="모델 이름" autocomplete="off" spellcheck="false" list="modellist" style="flex:1">
+          <button class="b-sub" id="fetchmodels" type="button" style="white-space:nowrap;font-size:9.8pt;padding:0 14px">목록 불러오기</button>
+        </div>
+        <datalist id="modellist"></datalist>
+        <div class="note" id="modelnote">모델 이름이 바뀌어 연결이 안 될 때는 <b>[목록 불러오기]</b>를 누르시면 지금 쓰실 수 있는 모델이 나옵니다. <span class="muted2">(키를 먼저 넣어 주세요)</span></div>
       </div>
       <div id="customrow" style="display:none">
-        <label class="f">API 주소 (OpenAI 호환)</label>
-        <input type="text" id="endpoint" placeholder="https://api.example.com/v1/chat/completions" autocomplete="off" spellcheck="false">
-        <div class="note">OpenAI와 같은 형식을 쓰는 서비스라면 주소만 넣으시면 됩니다.</div>
+        <label class="f">Base URL</label>
+        <input type="text" id="endpoint" placeholder="https://api.example.com/v1" autocomplete="off" spellcheck="false">
+        <div class="note">받으신 주소를 그대로 넣으세요. <b>/v1</b> 까지만 적으셔도 되고,
+          <b>/v1/chat/completions</b> 전체를 적으셔도 됩니다. 뒷부분은 알아서 붙입니다.</div>
       </div>
       <label class="f">API 키</label>
       <input type="password" id="key" placeholder="키를 붙여넣으세요" autocomplete="off" spellcheck="false">
@@ -141,6 +150,7 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
         <button class="b-go" id="save" style="font-size:10.5pt;padding:10px 20px">저장하고 연결 확인</button>
         <button class="b-sub" id="clear">지우기</button>
       </div>
+      <div class="smsg" id="smsg"></div>
     </div>
 
     <div class="pane2" id="p-share">
@@ -151,6 +161,7 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
         <button class="b-go" id="savep" style="font-size:10.5pt;padding:10px 20px">저장</button>
         <button class="b-sub" id="clearp">지우기</button>
       </div>
+      <div class="smsg" id="smsgp"></div>
     </div>
   </div>
 </details>
@@ -212,13 +223,16 @@ var cfg={mode:'mine',prov:'gemini',key:'',pass:'',model:'',endpoint:''};
 /* 브라우저에서 직접 부를 수 있는 곳만 넣었다 (CORS 실측 확인 2026-09-11).
    모델은 자주 바뀌므로 기본값만 두고, 바꾸실 수 있게 칸을 열어 두었다. */
 var PROV = {
-  gemini:{ name:'Google Gemini', tag:'무료 등급 있음', model:'gemini-2.5-flash', kind:'gemini',
+  gemini:{ name:'Google Gemini', tag:'무료 등급 있음', model:'gemini-3.7-flash', kind:'gemini',
+    list:'https://generativelanguage.googleapis.com/v1beta/models',
     url:'https://aistudio.google.com/apikey', note:'무료 등급이 있어 시작하기 쉽습니다. 이 도구에는 이 쪽을 권합니다.' },
   upstage:{ name:'Upstage Solar', tag:'국내', model:'solar-pro4', kind:'openai',
     ep:'https://api.upstage.ai/v1/chat/completions',
-    url:'https://console.upstage.ai/api-keys', note:'국내 서비스입니다. 이미지를 읽으려면 Solar Pro 4 이상이어야 합니다.' },
-  openai:{ name:'OpenAI (ChatGPT)', model:'gpt-4o', kind:'openai',
+    list:'https://api.upstage.ai/v1/models',
+    url:'https://console.upstage.ai/api-keys', note:'국내 서비스입니다. 이미지를 읽는 모델을 고르셔야 합니다.' },
+  openai:{ name:'OpenAI (ChatGPT)', model:'gpt-5.5', kind:'openai',
     ep:'https://api.openai.com/v1/chat/completions',
+    list:'https://api.openai.com/v1/models',
     url:'https://platform.openai.com/api-keys', note:'유료입니다.' },
   claude:{ name:'Anthropic Claude', model:'claude-sonnet-5', kind:'claude',
     url:'https://console.anthropic.com/settings/keys', note:'유료입니다.' },
@@ -275,31 +289,81 @@ $('prov').addEventListener('change',function(){
 });
 $('model').addEventListener('input',function(){this.dataset.auto='0';});
 
+/* 그 계정에서 실제로 쓸 수 있는 모델을 받아 온다 — 모델 이름이 바뀌어도 여기서 고르면 된다 */
+$('fetchmodels').addEventListener('click',async function(){
+  var k=$('key').value.trim();
+  if(!k){smsg('err','먼저 API 키를 넣어 주세요.');return;}
+  var P=PROV[$('prov').value]||{};
+  if(P.kind==='claude'){smsg('err','Claude는 목록을 받아 올 수 없습니다. 모델 이름을 직접 넣어 주세요.');return;}
+  cfg.endpoint=$('endpoint').value.trim();
+  var url=listOf(P);
+  if(!url){smsg('err','먼저 Base URL 을 넣어 주세요.');return;}
+  this.disabled=true;var old=this.textContent;this.textContent='받는 중…';
+  try{
+    var r,d,ids=[];
+    if(P.kind==='gemini'){
+      r=await fetch(url+'?key='+encodeURIComponent(k)+'&pageSize=200');
+      d=await r.json();
+      if(!r.ok)throw new Error((d.error&&d.error.message)||('오류 '+r.status));
+      ids=(d.models||[])
+        .filter(function(m){return (m.supportedGenerationMethods||[]).indexOf('generateContent')>=0})
+        .map(function(m){return String(m.name||'').replace(/^models\//,'')});
+    } else {
+      r=await fetch(url,{headers:{authorization:'Bearer '+k}});
+      d=await r.json();
+      if(!r.ok)throw new Error((d.error&&(d.error.message||d.error))||('오류 '+r.status));
+      ids=(d.data||[]).map(function(m){return m.id});
+    }
+    /* 이미지를 읽을 법한 것을 앞으로 */
+    var good=ids.filter(function(x){return /vision|vl|pro|flash|gpt-|o\d|solar/i.test(x)});
+    var rest=ids.filter(function(x){return good.indexOf(x)<0});
+    ids=good.concat(rest);
+    var dl=$('modellist'); dl.innerHTML='';
+    ids.forEach(function(x){var o=document.createElement('option');o.value=x;dl.appendChild(o);});
+    if(ids.length){
+      $('model').value=ids[0]; $('model').dataset.auto='0';
+      smsg('ok','모델 '+ids.length+'개를 받았습니다. 모델 칸을 누르시면 목록이 나옵니다. <b>'+ids[0]+'</b> 로 넣어 두었습니다.');
+    } else smsg('err','쓸 수 있는 모델이 없습니다.');
+  }catch(e){ smsg('err','목록을 받지 못했습니다 — '+(e.message||e)); }
+  this.disabled=false;this.textContent=old;
+});
+
 $('save').addEventListener('click',async function(){
   var k=$('key').value.trim();
-  if(!k){msg('err','키를 입력해 주세요.');return;}
+  if(!k){msg('err','키를 입력해 주세요.');smsg('err','키를 입력해 주세요.');return;}
   this.disabled=true;var old=this.textContent;this.textContent='확인 중…';
+  smsg('go','연결을 확인하고 있습니다…');
   cfg.mode='mine';cfg.prov=$('prov').value;cfg.key=k;
   cfg.model=$('model').value.trim()||(PROV[cfg.prov]||{}).model||'';
   cfg.endpoint=$('endpoint').value.trim();
   if((PROV[cfg.prov]||{}).custom&&!cfg.endpoint){
-    this.disabled=false;this.textContent=old;msg('err','API 주소를 넣어 주세요.');return;}
-  if(!cfg.model){this.disabled=false;this.textContent=old;msg('err','모델 이름을 넣어 주세요.');return;}
+    this.disabled=false;this.textContent=old;msg('err','API 주소를 넣어 주세요.');smsg('err','API 주소를 넣어 주세요.');return;}
+  if(!cfg.model){this.disabled=false;this.textContent=old;msg('err','모델 이름을 넣어 주세요.');smsg('err','모델 이름을 넣어 주세요.');return;}
   var r=await test();
   this.disabled=false;this.textContent=old;
-  if(r===true){store();badge();msg('ok','연결되었습니다. 이제 사진을 넣어 주세요.');$('setup').open=false;}
-  else{msg('err','연결하지 못했습니다 — '+r);}
+  if(r===true){store();badge();
+    msg('ok','연결되었습니다. 이제 사진을 넣어 주세요.');
+    smsg('ok','✓ 연결되었습니다. 아래에서 사진을 넣어 주세요.');
+    setTimeout(function(){$('setup').open=false;},1200);
+  } else {
+    msg('err','연결하지 못했습니다 — '+r);
+    smsg('err','<b>연결하지 못했습니다</b><br>'+r);
+  }
 });
 $('clear').addEventListener('click',function(){cfg.key='';$('key').value='';store();badge();msg('ok','지웠습니다.');});
 $('savep').addEventListener('click',function(){
   var p=$('pass').value.trim();
-  if(!p){msg('err','암호를 입력해 주세요.');return;}
+  if(!p){msg('err','암호를 입력해 주세요.');smsg('err','암호를 입력해 주세요.','smsgp');return;}
   cfg.mode='share';cfg.pass=p;store();badge();
-  msg('ok','저장했습니다. 이제 사진을 넣어 주세요.');$('setup').open=false;
+  msg('ok','저장했습니다. 이제 사진을 넣어 주세요.');
+  smsg('ok','✓ 저장했습니다. 아래에서 사진을 넣어 주세요.','smsgp');
+  setTimeout(function(){$('setup').open=false;},1200);
 });
 $('clearp').addEventListener('click',function(){cfg.pass='';$('pass').value='';store();badge();msg('ok','지웠습니다.');});
 
 function msg(k,t){var s=$('status');s.className=k;s.innerHTML=t;}
+/* 설정 박스 안에도 결과를 띄운다 — 아래쪽 상태줄은 접힌 상태에선 눈에 안 들어온다 */
+function smsg(k,t,which){var e=$(which||'smsg');if(!e)return;e.className='smsg '+k;e.innerHTML=t;}
 
 /* ── 연결 확인 ── */
 async function test(){
@@ -310,16 +374,38 @@ async function test(){
     return true;
   }catch(e){
     var m=String(e.message||e);
-    if(/image|vision|multimodal|modal/i.test(m)) return '이 모델은 이미지를 읽지 못합니다. 다른 모델 이름을 넣어 주세요.';
+    if(/image|vision|multimodal|modal/i.test(m))
+      return '이 모델은 이미지를 읽지 못합니다. <b>[목록 불러오기]</b>를 눌러 다른 모델을 골라 보세요.';
+    if(/no longer available|not found|does not exist|decommission/i.test(m))
+      return m+'<br><b>[목록 불러오기]</b>를 누르시면 지금 쓰실 수 있는 모델이 나옵니다.';
     return m;
   }
+}
+
+/* 받으신 주소가 Base URL 이든 전체 경로든 모두 받는다 */
+function epOf(P){
+  var u=(P.custom?cfg.endpoint:P.ep)||'';
+  u=u.trim().replace(/\/+$/,'');
+  if(!u)return '';
+  if(/\/(chat\/)?completions$/.test(u))return u;   /* 이미 전체 경로 */
+  if(/\/v\d+$/.test(u))return u+'/chat/completions'; /* .../v1 */
+  return u+'/v1/chat/completions';                  /* 도메인만 */
+}
+function listOf(P){
+  if(P.list)return P.list;
+  if(!P.custom)return '';
+  var u=(cfg.endpoint||'').trim().replace(/\/+$/,'');
+  if(!u)return '';
+  u=u.replace(/\/(chat\/)?completions$/,'');
+  if(/\/v\d+$/.test(u))return u+'/models';
+  return u+'/v1/models';
 }
 
 /* 한 곳에서 모든 제공자를 부른다 — 새 서비스는 PROV 에 줄만 더하면 된다 */
 async function callAI(prompt, im, maxTok){
   var P=PROV[cfg.prov]||{}, kind=P.kind||'openai';
   var model=cfg.model||P.model;
-  var ep=(P.custom?cfg.endpoint:P.ep);
+  var ep=epOf(P);
 
   if(kind==='gemini'){
     var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+

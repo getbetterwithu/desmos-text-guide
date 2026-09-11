@@ -26,11 +26,29 @@
 
 | 고를 수 있는 곳 | 기본 모델 | 비고 |
 |---|---|---|
-| Google Gemini | `gemini-2.5-flash` | 무료 등급 있음 — 기본값 |
-| Upstage Solar | `solar-pro4` | 국내. 이미지는 Solar Pro 4부터 |
-| OpenAI | `gpt-4o` | 유료 |
+| Google Gemini | `gemini-3.7-flash` | 무료 등급 있음 — 기본값 |
+| Upstage Solar | `solar-pro4` | 국내 |
+| OpenAI | `gpt-5.5` | 유료 |
 | Anthropic Claude | `claude-sonnet-5` | 유료 |
-| **직접 입력** | (직접) | 학교·기관에서 받은 OpenAI 호환 주소 |
+| **직접 입력** | (직접) | 학교·기관에서 받은 Base URL |
+
+### 모델 이름이 바뀌었을 때
+
+AI 회사들이 모델을 자주 갈아치우기 때문에 기본값은 언젠가 낡습니다.
+그래서 **[목록 불러오기]** 버튼을 두었습니다 — 키를 넣고 누르면 그 계정에서
+실제로 쓸 수 있는 모델을 받아와 고를 수 있습니다. 코드를 고칠 필요가 없습니다.
+
+(Claude만 목록 API가 없어 이름을 직접 넣어야 합니다.)
+
+### Base URL
+
+직접 입력에서는 받으신 주소를 그대로 넣으면 됩니다. 아래가 모두 같게 동작합니다.
+
+```
+https://api.example.com            → .../v1/chat/completions
+https://api.example.com/v1         → .../v1/chat/completions
+https://api.example.com/v1/chat/completions  (그대로)
+```
 
 **모델 이름은 직접 바꿀 수 있습니다.** 새 모델이 나오면 그 칸만 고치면 되고,
 코드를 손댈 필요가 없습니다. 제공자를 늘리려면 `convert.html`의 `PROV`에 한 줄 추가합니다.
