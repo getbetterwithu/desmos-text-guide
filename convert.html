@@ -289,12 +289,6 @@ var PROV = {
   gemini:{ name:'Google Gemini', tag:'무료 등급 있음', model:'gemini-3.7-flash', kind:'gemini',
     list:'https://generativelanguage.googleapis.com/v1beta/models',
     url:'https://aistudio.google.com/apikey', note:'무료 등급이 있어 시작하기 쉽습니다. 이 도구에는 이 쪽을 권합니다.' },
-  upstage:{ name:'Upstage Solar', tag:'국내 · 사진은 못 읽습니다', model:'solar-pro4', kind:'openai',
-    ep:'https://api.upstage.ai/v1/chat/completions',
-    list:'https://api.upstage.ai/v1/models',
-    url:'https://console.upstage.ai/api-keys',
-    warn:true,
-    note:'⚠ Solar는 글만 읽고 <b>사진은 읽지 못합니다</b>(Solar Pro 3·4 모두). 이 도구는 사진을 넣는 것이라 Upstage로는 쓰실 수 없습니다. <b>Google Gemini</b>를 쓰시기 바랍니다.' },
   openai:{ name:'OpenAI (ChatGPT)', model:'gpt-5.5', kind:'openai',
     ep:'https://api.openai.com/v1/chat/completions',
     list:'https://api.openai.com/v1/models',
@@ -575,7 +569,7 @@ async function callAI(prompt, im, maxTok){
     return (d2.content||[]).map(function(x){return x.text||''}).join('');
   }
 
-  /* OpenAI 호환 — OpenAI·Upstage·학교에서 받은 주소가 모두 여기로 온다 */
+  /* OpenAI 호환 — OpenAI와 학교·기관에서 받은 주소가 모두 여기로 온다 */
   if(!ep)throw new Error('API 주소가 없습니다.');
   var r3=await fetch(ep,{method:'POST',
     headers:{'content-type':'application/json',authorization:'Bearer '+cfg.key},
@@ -707,7 +701,8 @@ if(!SHARE_ENDPOINT){
   var st=document.querySelector('.tab[data-t="share"]'); if(st)st.style.display='none';
 }
 
-$('prov').value=(PROV[cfg.prov]?cfg.prov:'gemini');
+if(!PROV[cfg.prov])cfg.prov='gemini';   /* 없어진 곳(upstage 등)을 쓰고 계셨다면 */
+$('prov').value=cfg.prov;
 if(cfg.model){
   $('model').value=cfg.model;$('model').dataset.auto='0';
   var so=document.createElement('option');so.value=cfg.model;so.textContent=cfg.model+' (지난번에 쓰신 것)';

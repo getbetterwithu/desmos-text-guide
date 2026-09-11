@@ -27,7 +27,6 @@
 | 고를 수 있는 곳 | 기본 모델 | 비고 |
 |---|---|---|
 | Google Gemini | `gemini-3.7-flash` | 무료 등급 있음 — 기본값 |
-| Upstage Solar | `solar-pro4` | 국내 |
 | OpenAI | `gpt-5.5` | 유료 |
 | Anthropic Claude | `claude-sonnet-5` | 유료 |
 | **직접 입력** | (직접) | 학교·기관에서 받은 Base URL |
@@ -62,7 +61,8 @@ newone:{ name:'표시 이름', model:'기본모델', kind:'openai',
 `kind`는 `gemini` · `claude` · `openai` 셋뿐입니다. 대부분 OpenAI 호환이라 `openai`면 됩니다.
 
 > 브라우저에서 직접 호출하려면 그 서비스가 CORS를 허용해야 합니다.
-> Gemini·OpenAI·Claude·Upstage는 2026-09-11에 실측으로 확인했습니다.
+> Gemini·OpenAI·Claude는 2026-09-11에 실측으로 확인했습니다.
+> Upstage Solar는 CORS는 되지만 **모델이 이미지를 읽지 못해** 목록에서 뺐습니다.
 
 **[저장하고 연결 확인]은 1×1 이미지를 실제로 보내 봅니다** — 키가 맞는지뿐 아니라
 그 모델이 이미지를 읽을 수 있는지까지 걸러집니다.
