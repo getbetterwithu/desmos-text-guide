@@ -67,7 +67,7 @@ newone:{ name:'표시 이름', model:'기본모델', kind:'openai',
 **[저장하고 연결 확인]은 1×1 이미지를 실제로 보내 봅니다** — 키가 맞는지뿐 아니라
 그 모델이 이미지를 읽을 수 있는지까지 걸러집니다.
 
-키 발급 안내: [노션 페이지](https://getbetterwithu.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a)
+키 발급 안내: [노션 페이지](https://juneywooky.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a)
 
 ### 공유 키 (선택)
 

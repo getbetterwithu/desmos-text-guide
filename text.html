@@ -67,6 +67,27 @@ a.xlink:hover { box-shadow:0 7px 22px rgba(18,60,107,.45); transform:translateY(
   border:1px solid #dde4e8; border-radius:9px; font-size:13px; color:#78909c; line-height:1.6; }
 .home{display:inline-block;margin-top:12px;font-size:10pt;color:#0f4c81;text-decoration:none;font-weight:600;border:0}
 .home:hover{text-decoration:underline}
+
+.kbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.kbtn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
+  text-decoration:none;font-size:10pt;font-weight:700;border:1.5px solid #e3e7ee;
+  background:#fff;color:#39435c;transition:.14s}
+.kbtn:hover{border-color:#0f4c81;background:#f6f9fd;transform:translateY(-1px)}
+.golinks{margin:44px 0 0;padding-top:26px;border-top:1px solid #e3e7ee}
+.golinks .gt{font-size:10.4pt;font-weight:700;color:#5f6b7f;margin-bottom:12px}
+.golinks .gg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+@media(max-width:760px){.golinks .gg{grid-template-columns:1fr}}
+.gcard{display:flex;align-items:center;gap:12px;padding:15px 17px;border:1.6px solid #e3e7ee;
+  border-radius:12px;text-decoration:none;color:inherit;background:#fff;transition:.15s}
+.gcard:hover{border-color:#0f4c81;background:#f6f9fd;transform:translateY(-2px);
+  box-shadow:0 5px 15px rgba(15,76,129,.10)}
+.gcard .gi{font-size:20pt;line-height:1;flex:none}
+.gcard .gx{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.gcard .gx b{font-size:11.4pt;letter-spacing:-.02em}
+.gcard .gx em{font-style:normal;font-size:9.3pt;color:#5f6b7f;line-height:1.5}
+.gcard .ga{color:#0f4c81;font-weight:800;font-size:12pt;flex:none}
+.gcard.home2{background:#f6f8fb}
+@media print{.golinks{display:none}}
 </style>
 </head>
 <body>
@@ -183,9 +204,17 @@ a.xlink:hover { box-shadow:0 7px 22px rgba(18,60,107,.45); transform:translateY(
   <b>❌ 이렇게 하면 안 돼요:</b> 데스모스 메모에 <code>## 제목</code>, <code>&lt;span style="color:red"&gt;</code> 같은 걸 <b>직접 타이핑</b>하면 그 기호가 글자로 그대로 보입니다. 꼭 <b>이 페이지에서 꾸며진 글자를 복사</b>해 가세요.
 </div>
 
+<div class="golinks">
+  <div class="gt">다른 도구도 있습니다</div>
+  <div class="gg">
+    <a class="gcard" href="math.html"><span class="gi">📐</span><span class="gx"><b>수식 입력</b><em>선분·삼각형·닮음·분수 · 복사용 기호 23개</em></span><span class="ga">→</span></a>
+    <a class="gcard" href="convert.html"><span class="gi">🔄</span><span class="gx"><b>수식 변환</b><em>교과서 사진을 Amplify 수식으로</em></span><span class="ga">→</span></a>
+    <a class="gcard home2" href="./"><span class="gi">🏠</span><span class="gx"><b>도구 모음</b><em>전체 목록 보기</em></span><span class="ga">→</span></a>
+  </div>
+</div>
 <footer class="ftr">
-  <div class="fwho"><span class="fyear">2026</span> 서울대학교사범대학부설중학교 <b>허철호</b></div>
-  <div class="fbox">자유롭게 배포하셔도 됩니다. 다만 출처를 함께 표기해 주시기 바랍니다.</div>
+  Amplify에 직접 넣어 화면으로 확인한 내용입니다<br>
+2026 서울대학교사범대학부설중학교 <b>허철호</b> · 자유롭게 배포하셔도 됩니다. 다만 출처를 함께 표기해 주시기 바랍니다.
 </footer>
 
 </div>

@@ -119,7 +119,30 @@ details.manual[open]>summary::before{content:'▾ '}
 .smsg.go{display:block;background:#eef4fb;border:1px solid #c3d9f0;color:var(--brand)}
 .warn{background:#fffdf5;border:1px solid #ecdfae;border-radius:10px;padding:11px 15px;margin:12px 0;
   font-size:9.8pt;color:#7a5200;line-height:1.65}
-footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-size:9.5pt;color:var(--muted)}
+.kbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.kbtn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
+  text-decoration:none;font-size:10pt;font-weight:700;border:1.5px solid var(--line);
+  background:#fff;color:#39435c;transition:.14s}
+.kbtn:hover{border-color:var(--brand);background:#f6f9fd;transform:translateY(-1px)}
+.kbtn.go{background:var(--brand);border-color:var(--brand);color:#fff}
+.kbtn.go:hover{filter:brightness(1.13);background:var(--brand)}
+.kbtn .ki{font-size:12pt;line-height:1}
+.kbtn .ka{opacity:.7;font-size:9pt}
+.golinks{margin:44px 0 0;padding-top:26px;border-top:1px solid var(--line)}
+.golinks .gt{font-size:10.4pt;font-weight:700;color:var(--muted);margin-bottom:12px}
+.golinks .gg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+@media(max-width:760px){.golinks .gg{grid-template-columns:1fr}}
+.gcard{display:flex;align-items:center;gap:12px;padding:15px 17px;border:1.6px solid var(--line);
+  border-radius:12px;text-decoration:none;color:inherit;background:#fff;transition:.15s}
+.gcard:hover{border-color:var(--brand);background:#f6f9fd;transform:translateY(-2px);
+  box-shadow:0 5px 15px rgba(15,76,129,.10)}
+.gcard .gi{font-size:20pt;line-height:1;flex:none}
+.gcard .gx{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.gcard .gx b{font-size:11.4pt;letter-spacing:-.02em}
+.gcard .gx em{font-style:normal;font-size:9.3pt;color:var(--muted);line-height:1.5}
+.gcard .ga{color:var(--brand);font-weight:800;font-size:12pt;flex:none}
+.gcard.home2{background:#f6f8fb}
+footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:9.5pt;color:var(--muted)}
 </style></head><body>
 
 <div class="hero">
@@ -142,6 +165,7 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
       <div class="step2"><span class="sn">1</span>어느 AI를 쓰시겠습니까?</div>
       <select id="prov"></select>
       <div class="note" id="provnote"></div>
+      <div class="kbtns" id="keybtns"></div>
 
       <div id="customrow" style="display:none">
         <div class="step2"><span class="sn">2</span>Base URL</div>
@@ -157,10 +181,10 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
       <div class="step2"><span class="sn" id="sn-model">3</span>모델 고르기</div>
       <div id="modelrow">
         <div style="display:flex;gap:7px;align-items:stretch">
-          <select id="modelsel" style="flex:1"><option value="">먼저 [사진 되는 모델 찾기]를 눌러 주세요</option></select>
-          <button class="b-go" id="fetchmodels" type="button" style="white-space:nowrap;font-size:9.8pt;padding:0 15px">사진 되는 모델 찾기</button>
+          <select id="modelsel" style="flex:1"><option value="">먼저 [모델 목록 받기]를 눌러 주세요</option></select>
+          <button class="b-go" id="fetchmodels" type="button" style="white-space:nowrap;font-size:9.8pt;padding:0 15px">모델 목록 받기</button>
         </div>
-        <div class="note" id="modelnote">키를 넣으신 뒤 누르시면, <b>사진을 실제로 읽을 수 있는 모델만</b> 골라서 보여 드립니다.</div>
+        <div class="note" id="modelnote">키를 넣으신 뒤 누르시면 <b>사진을 읽는 모델만</b> 골라서 보여 드립니다. 최신 것이 맨 위로 옵니다.</div>
         <details class="manual"><summary>모델 이름을 직접 넣기</summary>
           <input type="text" id="model" placeholder="모델 이름" autocomplete="off" spellcheck="false" style="margin-top:8px">
         </details>
@@ -222,11 +246,30 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
   <div class="hintbar">왼쪽 글을 고치시면 오른쪽이 바로 따라 바뀝니다. 원하는 모양이 되면 <b>복사</b>를 눌러 Amplify에 붙여넣으세요.</div>
 </div>
 
+<div class="golinks">
+  <div class="gt">다른 도구도 있습니다</div>
+  <div class="gg">
+    <a class="gcard" href="math.html">
+      <span class="gi">📐</span>
+      <span class="gx"><b>수식 입력</b><em>선분·삼각형·닮음·분수 · 복사용 기호 23개</em></span>
+      <span class="ga">→</span>
+    </a>
+    <a class="gcard" href="text.html">
+      <span class="gi">🎨</span>
+      <span class="gx"><b>글자 꾸미기</b><em>크기·색·굵게 — 복사해서 붙이세요</em></span>
+      <span class="ga">→</span>
+    </a>
+    <a class="gcard home2" href="./">
+      <span class="gi">🏠</span>
+      <span class="gx"><b>도구 모음</b><em>전체 목록 보기</em></span>
+      <span class="ga">→</span>
+    </a>
+  </div>
+</div>
+
 <footer>
-  Amplify에 직접 넣어 화면으로 확인한 규칙을 따릅니다 ·
-  <a href="math.html" style="color:var(--brand)">수식 입력 안내</a> ·
-  <a href="text.html" style="color:var(--brand)">글자 꾸미기</a><br>
-  2026 서울대학교사범대학부설중학교 허철호
+  Amplify에 직접 넣어 화면으로 확인한 내용입니다<br>
+2026 서울대학교사범대학부설중학교 <b>허철호</b> · 자유롭게 배포하셔도 됩니다. 다만 출처를 함께 표기해 주시기 바랍니다.
 </footer>
 
 <script src="lib/jquery.min.js"></script>
@@ -236,7 +279,7 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
 (function(){
 'use strict';
 var PROMPT = "당신은 중학교 수학 교과서 지면을 Amplify Classroom(Desmos)에 넣을 수 있는 형태로 옮기는 일을 합니다.\n이미지에 보이는 수학 내용을 아래 규칙에 따라 그대로 옮겨 주세요.\n\n[가장 중요한 원칙]\n1. 수식은 앞뒤를 백틱(`)으로 감쌉니다.\n2. 기본은 LaTeX 문법입니다. 다만 교과서와 모양이 다른 기호는 명령어 대신 특수문자를 수식 안에 직접 넣습니다.\n3. 이미지에 있는 내용만 옮깁니다. 없는 것을 지어내지 않고, 있는 것을 빠뜨리지 않습니다.\n4. 한글 설명은 백틱 밖에 그대로 둡니다. 수식만 백틱으로 감쌉니다.\n\n[명령어로 쓰는 것]\n선분 \\overline{\\mathrm{AB}} · 아랫줄 \\underline{} · 직선 \\overleftrightarrow{\\mathrm{PQ}} · 호 \\overarc{\\mathrm{AB}}\n삼각형 \\triangle · 각 \\angle · 도 \\degree · 수직 \\perp · 평행사변형 \\parallelogram · 원 \\bigcirc\n분수 \\frac{}{} · 제곱근 \\sqrt{} · 세제곱근 \\sqrt[3]{} · 지수 ^2 ^{10} · 아래첨자 _1 _{12}\n\\neq \\leq \\geq · \\pm \\mp · \\times \\div \\cdot · \\infty · \\to\n굵게 \\mathbf{} · 색 \\textcolor{red}{} 또는 \\textcolor{#2f6bd8}{}\n비례식은 콜론을 그대로 씁니다: `2:3` 또는 `c\\ :\\ a\\ =\\ a\\ :\\ b`\n\n[반드시 특수문자를 직접 넣는 것 — 명령어를 쓰면 안 됩니다]\n닮음 ∽   (\\sim, \\backsim 금지 — 물결표라 교과서와 다릅니다)\n합동 ≡   (\\equiv 금지 — 렌더되지 않습니다)\n평행 ⫽   (\\parallel 금지 — 곧은 두 줄이라 교과서와 다릅니다)\n따라서 ∴  왜냐하면 ∵  함의 ⇒  동치 ⇔  근삿값 ≒  비례 ∝\n\n[렌더되지 않으므로 쓰지 말 것]\n\\therefore \\because \\Rightarrow \\Leftrightarrow \\equiv \\ldots \\cdots \\propto \\bot \\backsim \\text{} \\underbrace{} \\quad \\lim \\cbrt\n\\dfrac \\cfrac 는 \\frac 과 크기가 같으므로 \\frac 만 씁니다.\n\n[꼭짓점 글자]\nA, B, C 같은 점 이름은 반드시 \\mathrm{} 으로 감쌉니다. 쓰지 않으면 이탤릭이라 교과서 표기와 다릅니다.\n예: \\triangle\\mathrm{ABC}, \\angle\\mathrm{ACB}, \\overline{\\mathrm{BD}}\n단, a b c x y 같은 변·변수 문자는 \\mathrm 을 쓰지 않습니다(교과서도 이탤릭입니다).\n\n[공백 \\ (백슬래시+공백)]\n특수문자(∽ ≡ ⫽ ∴ ∵ ⇒) 앞뒤 → 반드시 넣습니다. 없으면 글자가 달라붙습니다.\n등호 = 와 비례식 콜론 : 앞뒤 → 넣습니다.\n+ − × ÷ → 넣지 않습니다. 자동으로 벌어집니다.\n\n[백틱 밖에 두는 것]\n말줄임표(…… ①), (AA 닮음) 같은 한글 괄호 설명, 번호표는 수식이 아니므로 백틱 밖에 둡니다.\n\\text{} 가 렌더되지 않으므로 수식 안에 한글을 넣지 마세요.\n\n[출력 형식]\n- 교과서의 줄바꿈과 들여쓰기를 그대로 살립니다.\n- 설명, 머리말, 코드펜스(```) 없이 변환 결과만 출력합니다.\n- 이미지에 수학 내용이 없으면 \"이미지에서 수학 내용을 찾지 못했습니다.\"라고만 답합니다.";
-var GUIDE=window.GUIDE_URL||'https://getbetterwithu.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a';
+var GUIDE=window.GUIDE_URL||'https://juneywooky.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a';
 var K='dtg_conv_v3';
 var cfg={mode:'mine',prov:'gemini',key:'',pass:'',model:'',endpoint:''};
 
@@ -280,9 +323,18 @@ function badge(){
 function paintProv(){
   var v=$('prov').value, P=PROV[v]||{};
   $('provnote').className = 'note' + (P.warn?' warnnote':'');
-  $('provnote').innerHTML = (P.note||'') +
-    (P.url?' <a href="'+P.url+'" target="_blank" rel="noopener">키 받으러 가기 →</a>':'') +
-    (v==='gemini'?' <a href="'+GUIDE+'" target="_blank" rel="noopener">발급 절차 자세히 보기 →</a>':'');
+  $('provnote').innerHTML = (P.note||'');
+  /* 키를 받으러 가는 길은 눈에 띄어야 한다 — 글자 링크가 아니라 버튼으로 */
+  var kb=$('keybtns'); kb.innerHTML='';
+  if(P.url){
+    kb.innerHTML += '<a class="kbtn go" href="'+P.url+'" target="_blank" rel="noopener">'+
+      '<span class="ki">🔑</span><span>키 받으러 가기</span><span class="ka">↗</span></a>';
+  }
+  if(v==='gemini'){
+    kb.innerHTML += '<a class="kbtn" href="'+GUIDE+'" target="_blank" rel="noopener">'+
+      '<span class="ki">📖</span><span>발급 절차 보기</span><span class="ka">↗</span></a>';
+  }
+  kb.style.display = kb.innerHTML ? 'flex' : 'none';
   $('customrow').style.display=P.custom?'block':'none';
   /* 단계 번호는 Base URL 칸이 있느냐에 따라 달라진다 */
   $('sn-key').textContent=P.custom?'3':'2';
@@ -290,7 +342,7 @@ function paintProv(){
   $('model').placeholder=P.model||'모델 이름';
   /* 곳을 바꾸면 찾아 둔 목록은 무효 */
   var sel=$('modelsel');
-  sel.innerHTML='<option value="">먼저 [사진 되는 모델 찾기]를 눌러 주세요</option>';
+  sel.innerHTML='<option value="">먼저 [모델 목록 받기]를 눌러 주세요</option>';
   sel.disabled=true;
   $('sn-model').parentNode.classList.remove('done');
 }
@@ -316,9 +368,28 @@ $('prov').addEventListener('change',function(){
 });
 $('model').addEventListener('input',function(){this.dataset.auto='0';});
 
-/* 후보를 추려 실제로 사진을 보내 보고, 되는 것만 남긴다.
-   목록에 '이미지 가능' 표시가 없는 서비스가 많아서, 물어보는 편이 확실하다. */
-var PX1='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+/* 사진을 읽는 것으로 알려진 모델들.
+   목록 API 에는 '이미지 가능' 표시가 없어서, 이름으로 골라낸다.
+   여기 없는 이름이라도 쓰실 수 있게 '직접 넣기' 칸을 열어 두었다. */
+var VISION = [
+  /^gemini-/i,                         /* 제미나이는 전 세대가 사진을 읽는다 */
+  /^gpt-(4o|4\.1|5|6)/i, /^gpt-4-turbo/i, /^chatgpt-/i, /^o[134]\b/i,
+  /^claude-/i,
+  /vision|-vl\b|\bvl-|pixtral|llava|internvl|qwen.*-vl/i,
+  /^grok-.*vision/i, /^grok-[2-9]/i,
+];
+/* 이름만 봐도 사진과 무관한 것들 — 목록에서 아예 뺀다 */
+var NOTVISION = /embed|embedding|tts|audio|speech|whisper|moderation|rerank|guard|safety|imagen|dall|veo|music|voice|solar|translate|ocr-|-ocr|nano-banana|image-gen|generate-image|codestral|-code\b/i;
+
+function pickVision(ids){
+  var seen={}, out=[];
+  ids.forEach(function(x){
+    if(!x||seen[x])return;
+    if(NOTVISION.test(x))return;
+    for(var i=0;i<VISION.length;i++) if(VISION[i].test(x)){seen[x]=1;out.push(x);return;}
+  });
+  return out;
+}
 
 async function listModels(P,k){
   var url=listOf(P);
@@ -337,20 +408,25 @@ async function listModels(P,k){
   return (d2.data||[]).map(function(m){return m.id}).filter(Boolean);
 }
 
-/* 사진을 못 읽을 것이 뻔한 이름은 미리 걷어낸다 — 시험 횟수를 줄이려는 것 */
-function likely(ids){
-  var no=/embed|embedding|tts|audio|speech|whisper|moderation|rerank|guard|safety|translate|image-gen|imagen|dall|veo|music|voice|solar/i;
-    var yes=/vision|vl\b|gpt|gemini|claude|pixtral|llava|qwen.*v|intern|flash|pro|sonnet|opus|haiku|o\d/i;
-  var a=ids.filter(function(x){return !no.test(x)&&yes.test(x)});
-  var b=ids.filter(function(x){return !no.test(x)&&!yes.test(x)});
-  return a.concat(b);
-}
-
-async function canSeeImage(P,k,model){
-  var save=cfg.model; cfg.model=model;
-  try{ await callAI('이 그림에 무엇이 있습니까?',{data:PX1,mime:'image/png'},32); return true; }
-  catch(e){ return false; }
-  finally{ cfg.model=save; }
+/* 쓰기 좋은 것이 위로 오게 정렬한다.
+   ① 대표 계열(flash/pro/sonnet 등) ② 버전이 높은 것 ③ 이름이 짧은 것 */
+function newestFirst(ids){
+  function ver(x){
+    var m=String(x).match(/(\d+)[.\-](\d+)/);
+    if(m)return parseFloat(m[1]+'.'+m[2]);
+    var n=String(x).match(/(\d+)/);
+    return n?parseFloat(n[1]):0;
+  }
+  function rank(x){
+    x=String(x).toLowerCase();
+    if(/preview|exp|beta|latest-?\d|-\d{4,}|thinking|lite|mini|nano|small|tiny/.test(x))return 2;
+    return 0;   /* 정식·대표 모델 */
+  }
+  return ids.slice().sort(function(a,b){
+    var d=rank(a)-rank(b); if(d)return d;
+    d=ver(b)-ver(a);       if(d)return d;
+    return a.length-b.length;
+  });
 }
 
 $('fetchmodels').addEventListener('click',async function(){
@@ -360,48 +436,38 @@ $('fetchmodels').addEventListener('click',async function(){
   cfg.prov=$('prov').value; cfg.key=k; cfg.endpoint=$('endpoint').value.trim();
   if(P.custom&&!cfg.endpoint){smsg('err','먼저 <b>Base URL</b> 을 넣어 주세요.');return;}
 
-  var sel=$('modelsel'), btn=this;
-  btn.disabled=true; var old=btn.textContent;
-  sel.disabled=true; sel.innerHTML='<option value="">찾는 중…</option>';
+  var sel=$('modelsel'), btn=this, old=btn.textContent;
+  btn.disabled=true; btn.textContent='받는 중…';
+  sel.disabled=true; sel.innerHTML='<option value="">받는 중…</option>';
+  smsg('go','쓰실 수 있는 모델을 받아 오고 있습니다…');
 
   try{
     var ids;
     if(P.kind==='claude'){
-      /* Claude 는 목록 API 가 없다 — 알려진 것으로 시험한다 */
-      ids=['claude-opus-5','claude-sonnet-5','claude-haiku-4-5-20251001'];
+      ids=['claude-opus-5','claude-sonnet-5','claude-fable-5','claude-haiku-4-5-20251001'];
     } else {
-      btn.textContent='목록 받는 중…';
       ids=await listModels(P,k);
     }
-    ids=likely(ids);
-    if(!ids.length)throw new Error('쓸 수 있는 모델이 없습니다.');
-
-    /* 앞에서부터 차례로 시험한다. 3개를 찾으면 멈춘다 — 다 해보면 너무 오래 걸린다 */
-    var ok=[], tried=0, MAXTRY=Math.min(ids.length,18), WANT=5;
-    for(var i=0;i<MAXTRY&&ok.length<WANT;i++){
-      tried++;
-      btn.textContent='시험 '+tried+'/'+MAXTRY+'…';
-      smsg('go','사진을 읽을 수 있는지 하나씩 확인하고 있습니다… <b>'+ids[i]+'</b>'+
-        (ok.length?'<br>지금까지 찾은 것: '+ok.join(', '):''));
-      if(await canSeeImage(P,k,ids[i])) ok.push(ids[i]);
-    }
+    var all=ids.length;
+    var vis=newestFirst(pickVision(ids));
 
     sel.innerHTML='';
-    if(ok.length){
-      ok.forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o);});
+    if(vis.length){
+      vis.forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o);});
       sel.disabled=false;
-      $('model').value=ok[0];
-      smsg('ok','사진을 읽을 수 있는 모델 <b>'+ok.length+'개</b>를 찾았습니다. '+
-        '<b>'+ok[0]+'</b> 로 골라 두었습니다. 아래 <b>[저장하고 연결 확인]</b>을 눌러 주세요.');
+      $('model').value=vis[0];
+      smsg('ok','사진을 읽는 모델 <b>'+vis.length+'개</b>를 골라 왔습니다'+
+        (all>vis.length?' <span class="muted">(전체 '+all+'개 중)</span>':'')+
+        '.<br>맨 위의 <b>'+vis[0]+'</b> 로 골라 두었습니다. 바꾸시려면 목록을 눌러 주세요.');
       $('sn-model').parentNode.classList.add('done');
     } else {
-      sel.innerHTML='<option value="">사진을 읽는 모델을 찾지 못했습니다</option>';
-      smsg('err','시험해 본 '+tried+'개 중에 사진을 읽는 모델이 없었습니다.'+
-        '<br>다른 AI를 고르시거나, <b>모델 이름을 직접 넣기</b>로 이름을 넣어 보세요.');
+      sel.innerHTML='<option value="">사진을 읽는 모델이 없습니다</option>';
+      smsg('err','받아 온 '+all+'개 중에 사진을 읽는 모델이 없었습니다.'+
+        '<br>다른 AI를 고르시거나, <b>모델 이름을 직접 넣기</b>로 넣어 보세요.');
     }
   }catch(e){
-    sel.innerHTML='<option value="">찾지 못했습니다</option>';
-    smsg('err','모델을 찾지 못했습니다 — '+String(e.message||e));
+    sel.innerHTML='<option value="">받지 못했습니다</option>';
+    smsg('err','모델을 받지 못했습니다 — '+String(e.message||e));
   }
   btn.disabled=false; btn.textContent=old;
 });
@@ -555,17 +621,31 @@ $('go').addEventListener('click',async function(){
   this.disabled=true;var old=this.textContent;this.textContent='바꾸는 중…';
   msg('go','AI가 사진을 읽고 있습니다. 10초쯤 걸립니다…');
   try{
-    var text=await convert();
+    var text=await convert(function(n,total,sec){
+      msg('go','서버가 잠깐 붐빕니다. '+sec+'초 뒤 다시 시도합니다… ('+n+'/'+total+')');
+    });
     text=text.replace(/^\s*```[a-z]*\n?/i,'').replace(/```\s*$/,'').trim();
     $('code').value=text; draw();
     $('result').style.display='block';$('rh').style.display='block';
     msg('ok','다 바꿨습니다. 오른쪽에서 모양을 확인하시고 복사해 주세요.');
     $('rh').scrollIntoView({behavior:'smooth',block:'start'});
-  }catch(e){ msg('err',e.message||'변환에 실패했습니다.'); }
+  }catch(e){
+    var m=String(e.message||'변환에 실패했습니다.');
+    var esc=m.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    if(isBusy(m)) esc+='<br>→ <b>서버가 붐비고 있습니다.</b> 세 번 더 해 봤지만 안 됐습니다. '+
+      '잠시 뒤 <b>[수식으로 바꾸기]</b>를 다시 누르시거나, 다른 모델·다른 AI로 바꿔 보세요.';
+    msg('err',esc);
+  }
   this.disabled=false;this.textContent=old;
 });
 
-async function convert(){
+/* 잠깐 붐벼서 실패하는 일이 잦다 — 그런 오류면 조금 기다렸다 다시 해 본다 */
+function isBusy(m){
+  return /high demand|overload|temporar|try again|rate.?limit|quota|resource.?exhaust|unavailable|429|503|529|timeout|deadline|busy/i.test(String(m||''));
+}
+function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+async function convertOnce(){
   if(cfg.mode==='share'){
     var r=await fetch(SHARE_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},
       body:JSON.stringify({password:cfg.pass,prompt:PROMPT,image:img.data,mime:img.mime})});
@@ -574,6 +654,20 @@ async function convert(){
     return d.text||'';
   }
   return await callAI(PROMPT,img,2000);
+}
+
+async function convert(onRetry){
+  var delays=[2000,5000,10000], last=null;
+  for(var i=0;i<=delays.length;i++){
+    try{ return await convertOnce(); }
+    catch(e){
+      last=e;
+      if(i===delays.length||!isBusy(e.message))throw e;
+      if(onRetry)onRetry(i+1,delays.length,Math.round(delays[i]/1000));
+      await wait(delays[i]);
+    }
+  }
+  throw last;
 }
 
 /* ── 미리보기 — Amplify와 같은 MathQuill로 그린다 ── */
