@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데스모스 글자 꾸미기 — 복사해서 붙이세요</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+  * { box-sizing:border-box; }
+  body { font-family:'Noto Sans KR',sans-serif; background:#eef1f4; color:#222; line-height:1.65; padding:30px 0 90px; margin:0;}
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px; }
+
+  header.h { background:linear-gradient(120deg,#1f6f54,#2e9e76); color:#fff; border-radius:16px; padding:26px 32px; margin-bottom:18px;}
+  header.h h1 { font-size:24px; font-weight:900; margin:0 0 6px;}
+  header.h p { font-size:14.5px; opacity:.96; margin:0;}
+
+  .intro { background:#fff; border-radius:13px; padding:18px 22px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.05); font-size:14.5px;}
+  .intro b { color:#1f6f54;}
+  .intro .key { background:#fff8e1; border-left:4px solid #ffb300; padding:11px 15px; border-radius:0 8px 8px 0; margin-top:12px; font-size:14px;}
+  .step { display:flex; gap:10px; margin-top:10px; align-items:flex-start;}
+  .step .num { background:#2e9e76; color:#fff; font-weight:900; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; margin-top:1px;}
+  .step .txt { flex:1; }
+
+  h2.sec { font-size:18px; color:#1f6f54; margin:30px 0 8px; padding-bottom:6px; border-bottom:2px solid #cfe3d8;}
+  .sec-desc { font-size:13.5px; color:#666; margin:0 0 14px;}
+
+  /* 복사 카드 — 이 안의 글자를 드래그 복사 */
+  .grab-card { background:#fff; border:2px solid #b8e0c8; border-radius:12px; margin-bottom:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .grab-card .gh { background:#e8f5e9; padding:7px 16px; font-size:12px; font-weight:700; color:#2e7d32;}
+  .grab-card .gbody { padding:18px 20px; }
+  /* 실제 데스모스에 들어갈 모습 = 여기 그대로 렌더 (드래그 복사 대상) */
+  .grab-card .gbody .p-h1 { font-size:30px; font-weight:700; margin:0;}
+  .grab-card .gbody .p-h2 { font-size:25px; font-weight:700; margin:0;}
+  .grab-card .gbody .p-normal { font-size:17px; margin:0;}
+  .green{color:green;} .orange{color:orange;} .pink{color:deeppink;} .blue{color:blue;} .red{color:red;}
+  .grab-card .note { background:#fafdfb; border-top:1px dashed #d8e8de; padding:7px 16px; font-size:12px; color:#888;}
+
+  /* 색상 팔레트 */
+  .palette { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .pal { background:#fff; border:2px solid #e0e4e8; border-radius:10px; overflow:hidden; display:flex; align-items:stretch;}
+  .pal .ph { color:#fff; font-size:13px; font-weight:700; padding:0 14px; display:flex; align-items:center; min-width:74px; justify-content:center;}
+  .pal .pb { padding:12px 14px; flex:1; display:flex; align-items:center;}
+  @media(max-width:620px){ .palette{grid-template-columns:1fr;} }
+
+  .tipbox { background:#e8f5e9; border-radius:10px; padding:16px 20px; font-size:14px; margin-top:18px;}
+  .tipbox b{color:#2e7d32;}
+  .warn { background:#ffebee; border-radius:10px; padding:14px 18px; font-size:13.5px; margin-top:12px; color:#b71c1c;}
+  .warn b{color:#8b0000;}
+  a.xlink { display:flex; align-items:center; gap:15px; text-decoration:none;
+  background:linear-gradient(120deg,#123c6b,#1e5fa8); color:#fff;
+  border:none; border-radius:14px; padding:17px 22px; margin:0 0 20px;
+  box-shadow:0 4px 14px rgba(18,60,107,.30); transition:.18s; }
+a.xlink:hover { box-shadow:0 7px 22px rgba(18,60,107,.45); transform:translateY(-2px); }
+.xi { flex:none; width:42px; height:42px; border-radius:11px; background:rgba(255,255,255,.19);
+  color:#fff; font-size:21px; font-weight:800; display:flex; align-items:center;
+  justify-content:center; letter-spacing:-1px; }
+.xt { flex:1; font-size:15.5px; font-weight:600; line-height:1.45; }
+.xt b { font-weight:800; }
+.xt em { display:block; font-style:normal; font-size:12.5px; opacity:.82; font-weight:400; margin-top:2px; }
+.xa { flex:none; background:#ffd54a; color:#123c6b; font-size:13.5px; font-weight:800;
+  padding:9px 16px; border-radius:9px; white-space:nowrap; }
+.ftr { text-align:center; margin:40px 0 10px; padding-top:22px; border-top:2px solid #dbe2e6; }
+.ftr .fwho { font-size:15px; color:#37474f; letter-spacing:-.2px; }
+.ftr .fwho b { font-weight:800; margin-left:2px; }
+.ftr .fyear { color:#9aa7b0; font-weight:600; margin-right:5px; }
+.ftr .fbox { margin:14px auto 0; max-width:480px; padding:11px 18px; background:#fff;
+  border:1px solid #dde4e8; border-radius:9px; font-size:13px; color:#78909c; line-height:1.6; }
+.home{display:inline-block;margin-top:12px;font-size:10pt;color:#0f4c81;text-decoration:none;font-weight:600;border:0}
+.home:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="h">
+  <h1>📝 데스모스 글자 꾸미기 — 복사해서 붙이세요</h1>
+  <p>데스모스(Amplify) 텍스트(메모)는 글자를 잘 못 꾸밉니다. 하지만 <b>이미 꾸며진 글자를 복사해서 붙이면</b> 그대로 들어가요.</p>
+  <a class="home" href="./">← 도구 모음으로</a>
+</header>
+
+<a class="xlink" href="math.html"><span class="xi">√<span class="xibar"></span></span><span class="xt"><b>수식·수학 기호</b>는 여기서 —— 선분 · 닮음 · 분수 · 각도<em>명령어 25개 + 복사용 기호 모음</em></span><span class="xa">바로가기 →</span></a>
+
+<div class="intro">
+  <b>사용법 — 딱 3단계</b>
+  <div class="step"><span class="num">1</span><span class="txt">아래 카드에서 <b>꾸며진 글자를 마우스로 드래그</b>해서 복사 (Cmd+C / Ctrl+C) — <b>여러 줄·여러 색을 한 번에 긁어도 OK</b></span></div>
+  <div class="step"><span class="num">2</span><span class="txt">데스모스의 <b>메모</b> 칸을 클릭하고 붙여넣기 (Cmd+V / Ctrl+V)</span></div>
+  <div class="step"><span class="num">3</span><span class="txt">큰 글씨·색깔이 <b>그대로</b> 들어갑니다 ✨</span></div>
+  <div class="key">
+    ⚠️ <b>핵심:</b> 데스모스에 <code>#</code>이나 <code>&lt;span&gt;</code> 같은 <b>기호를 직접 타이핑하면 안 됩니다</b> (글자 그대로 나옴).
+    반드시 <b>여기서 이미 꾸며진 글자를 복사</b>해 가야 서식이 따라갑니다.
+  </div>
+</div>
+
+<!-- ① 큰 글씨 -->
+<h2 class="sec">① 큰 글씨 (크기는 2단계뿐)</h2>
+<p class="sec-desc">데스모스에서 글씨 크기는 <b>딱 2단계</b>예요. 아래 글자를 드래그 복사 → 붙이면 그 크기로 들어갑니다.</p>
+
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — ① 가장 큰 글씨 (대제목용)</div>
+  <div class="gbody"><h1 class="p-h1">닮은 도형의 넓이</h1></div>
+  <div class="note">붙이면: 제일 큰 크기 · 화면 제목에 좋아요</div>
+</div>
+
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — ② 큰 글씨 (발문용 · 제일 많이 씀)</div>
+  <div class="gbody"><h2 class="p-h2">넓이의 비는 얼마일까요?</h2></div>
+  <div class="note">붙이면: 큰 글씨 · 발문에 딱 (여러 줄도 OK)</div>
+</div>
+
+<!-- ② 색깔 -->
+<h2 class="sec">② 색깔</h2>
+<p class="sec-desc">핵심 단어만 색을 넣어 강조할 수 있어요.</p>
+
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — 핵심어만 초록</div>
+  <div class="gbody"><p class="p-normal">두 도형의 <span style="color:green;font-weight:700;">넓이의 비</span>는 얼마일까요?</p></div>
+  <div class="note">붙이면: "넓이의 비"만 초록색</div>
+</div>
+
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — 두 가지 색 동시에</div>
+  <div class="gbody"><p class="p-normal"><span style="color:green;font-weight:700;">넓이</span>는 m²:n², &nbsp;<span style="color:deeppink;font-weight:700;">부피</span>는 m³:n³</p></div>
+  <div class="note">붙이면: 넓이=초록, 부피=분홍</div>
+</div>
+
+<!-- ③ 굵게 -->
+<h2 class="sec">③ 굵게</h2>
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — 숫자만 굵게</div>
+  <div class="gbody"><p class="p-normal">닮음비가 <b>1:2</b>인 두 직사각형</p></div>
+  <div class="note">붙이면: "1:2"만 굵게</div>
+</div>
+
+<!-- ④ 섞어 쓰기 -->
+<h2 class="sec">④ 섞어 쓰기 (큰 글씨 + 색)</h2>
+<p class="sec-desc">제일 쓸모 있는 조합! 큰 글씨 안에서 핵심어만 색을 넣을 수 있어요.</p>
+
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — 큰 글씨 + 핵심어 색</div>
+  <div class="gbody"><h2 class="p-h2">닮음비 <span style="color:orange;">2:3</span>일 때 부피는?</h2></div>
+  <div class="note">붙이면: 전체 큰 글씨, "2:3"만 주황</div>
+</div>
+
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — 큰 글씨 + 굵게 + 색 한꺼번에</div>
+  <div class="gbody"><h2 class="p-h2">닮음비 <b><span style="color:green;">1:2</span></b>면 넓이의 비는?</h2></div>
+  <div class="note">붙이면: 큰 글씨 + "1:2" 굵게+초록</div>
+</div>
+
+<!-- ⑤ 여러 줄 -->
+<h2 class="sec">⑤ 여러 줄 (그대로 복사하면 줄도 따라감)</h2>
+<div class="grab-card">
+  <div class="gh">📋 드래그 복사 — 큰 글씨 여러 줄</div>
+  <div class="gbody"><h2 class="p-h2">닮음비가 1:2인 두 직사각형.<br>넓이의 비는 얼마일까요?<br>계산하지 말고 직감으로!</h2></div>
+  <div class="note">붙이면: 세 줄 모두 큰 글씨</div>
+</div>
+
+<!-- ⑥ 색상 팔레트 -->
+<h2 class="sec">⑥ 색상 팔레트 — 자주 쓰는 10색 (큰 글씨 조합)</h2>
+<p class="sec-desc">원하는 색 글자를 드래그 복사 → 데스모스에 붙이고, 글자만 바꿔 쓰면 됩니다. 모두 <b>큰 글씨</b>로 만들어 뒀어요.
+<br>💡 이 색들은 모두 <b>영어 색 이름</b>으로 돼 있어 가장 외우기 쉬워요. (테스트 결과 <code>#f00</code> 같은 짧은 hex·긴 hex·<code>rgb()</code>도 모두 잘 들어갑니다 — 원하는 표기를 쓰면 됩니다.)</p>
+
+<div class="palette">
+  <div class="pal"><div class="ph" style="background:red;">빨강</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:red;">빨강 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:blue;">파랑</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:blue;">파랑 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:green;">초록</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:green;">초록 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:orange; color:#5a3a00;">주황</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:orange;">주황 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:purple;">보라</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:purple;">보라 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:deeppink;">분홍</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:deeppink;">분홍 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:teal;">청록</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:teal;">청록 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:magenta;">자홍</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:magenta;">자홍 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:brown;">갈색</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:brown;">갈색 글씨 예시</span></h2></div></div>
+  <div class="pal"><div class="ph" style="background:gray;">회색</div><div class="pb"><h2 class="p-h2" style="margin:0;"><span style="color:gray;">회색 글씨 예시</span></h2></div></div>
+</div>
+
+<div class="tipbox">
+  <b>💡 정리</b><br>
+  · 크기는 <b>큰 글씨 1종</b>이면 충분 (다른 크기는 줄간격이 깨져 실전에 안 좋아요)<br>
+  · 색은 위 <b>10색 팔레트</b>에서 골라 복사<br>
+  · 꾸미고 싶은 글자가 없으면? 비슷한 카드를 복사한 뒤, 데스모스 안에서 글자만 바꿔 쓰세요. 서식은 유지됩니다.
+</div>
+<div class="warn">
+  <b>❌ 이렇게 하면 안 돼요:</b> 데스모스 메모에 <code>## 제목</code>, <code>&lt;span style="color:red"&gt;</code> 같은 걸 <b>직접 타이핑</b>하면 그 기호가 글자로 그대로 보입니다. 꼭 <b>이 페이지에서 꾸며진 글자를 복사</b>해 가세요.
+</div>
+
+<footer class="ftr">
+  <div class="fwho"><span class="fyear">2026</span> 서울대학교사범대학부설중학교 <b>허철호</b></div>
+  <div class="fbox">자유롭게 배포하셔도 됩니다. 다만 출처를 함께 표기해 주시기 바랍니다.</div>
+</footer>
+
+</div>
+</body>
+</html>

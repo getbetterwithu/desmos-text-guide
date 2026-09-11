@@ -1,0 +1,395 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="교과서 사진을 Amplify Classroom 수식으로 바꿔 줍니다. 서울대학교사범대학부설중학교 허철호.">
+<title>수식 변환 — 교과서 사진을 Amplify 수식으로</title>
+<link rel="stylesheet" href="lib/mathquill.css">
+<style>
+*{box-sizing:border-box}
+:root{--ink:#12151b;--muted:#5f6b7f;--line:#e3e7ee;--soft:#f6f8fb;
+  --brand:#0f4c81;--accent:#b3005e;--ok:#0a7d54;--warn:#b8860b}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Pretendard","Malgun Gothic","맑은 고딕",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  max-width:900px;margin:0 auto;padding:0 22px 60px;color:var(--ink);line-height:1.68;font-size:11pt;
+  background:#fff;-webkit-font-smoothing:antialiased}
+.hero{border-bottom:3px solid var(--brand);padding:34px 0 20px;margin-bottom:26px}
+.eyebrow{display:inline-block;background:var(--brand);color:#fff;font-size:9.5pt;font-weight:700;
+  letter-spacing:.04em;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+h1{font-size:26pt;margin:0 0 8px;letter-spacing:-.03em;font-weight:800;line-height:1.25}
+.sub{color:var(--muted);font-size:11pt;margin:0}
+.home{display:inline-block;margin-top:14px;font-size:10pt;color:var(--brand);text-decoration:none;font-weight:600}
+.home:hover{text-decoration:underline}
+h2{font-size:15pt;font-weight:800;letter-spacing:-.02em;margin:34px 0 12px;
+  padding-bottom:8px;border-bottom:2px solid var(--line)}
+h2 .n{display:inline-block;width:26px;height:26px;border-radius:7px;color:#fff;background:var(--brand);
+  font-size:11pt;text-align:center;line-height:26px;margin-right:9px;vertical-align:2px}
+
+/* 이미지 놓는 자리 */
+#drop{border:2.5px dashed #c3cede;border-radius:14px;background:var(--soft);padding:40px 24px;
+  text-align:center;cursor:pointer;transition:.15s;margin:14px 0}
+#drop:hover,#drop.over{border-color:var(--brand);background:#eef4fb}
+#drop .big{font-size:30pt;line-height:1;margin-bottom:10px}
+#drop .t1{font-size:12.5pt;font-weight:700;margin-bottom:4px}
+#drop .t2{font-size:10pt;color:var(--muted)}
+#preview{display:none;margin:14px 0}
+#preview img{max-width:100%;border:1px solid var(--line);border-radius:10px;display:block}
+.pbar{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+
+button{font-family:inherit;font-size:10.5pt;font-weight:700;border:0;border-radius:9px;
+  padding:10px 18px;cursor:pointer;transition:.12s}
+button:active:not(:disabled){transform:translateY(1px)}
+button:disabled{opacity:.5;cursor:progress}
+.b-go{background:var(--brand);color:#fff;font-size:12pt;padding:13px 30px}
+.b-go:hover:not(:disabled){background:#0c3e६a;filter:brightness(1.12)}
+.b-sub{background:#eef1f6;color:#39435c}
+.b-sub:hover:not(:disabled){background:#e2e7ef}
+.b-copy{background:var(--ok);color:#fff}
+.b-copy:hover:not(:disabled){filter:brightness(1.12)}
+
+/* 결과 */
+#result{display:none;margin-top:8px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+@media(max-width:760px){.rgrid{grid-template-columns:1fr}}
+.pane{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.pane>.ph{background:var(--soft);padding:9px 14px;font-size:10pt;font-weight:700;color:var(--muted);
+  border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+#code{width:100%;min-height:300px;border:0;padding:14px;font-family:"D2Coding","SF Mono",ui-monospace,Consolas,monospace;
+  font-size:10pt;line-height:1.95;resize:vertical;outline:none;color:var(--ink);background:#fff}
+#render{padding:16px;min-height:300px;font-size:12pt;line-height:2.45;overflow-x:auto}
+#render .mq{font-size:16pt}
+.hintbar{font-size:9.5pt;color:var(--muted);margin-top:8px;line-height:1.6}
+
+/* 상태 */
+#status{margin:14px 0;padding:12px 16px;border-radius:10px;font-size:10.5pt;display:none}
+#status.go{display:block;background:#eef4fb;border:1px solid #c3d9f0;color:var(--brand)}
+#status.err{display:block;background:#fdecee;border:1px solid #f3c3c8;color:#b02020}
+#status.ok{display:block;background:#e8f6f0;border:1px solid #b6e3ce;color:var(--ok)}
+
+/* 설정 */
+details.setup{border:1px solid var(--line);border-radius:12px;margin:18px 0;background:#fff}
+details.setup>summary{padding:13px 18px;cursor:pointer;font-weight:700;font-size:11pt;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.setup>summary::-webkit-details-marker{display:none}
+details.setup>summary:hover{background:var(--soft)}
+details.setup[open]>summary{border-bottom:1px solid var(--line)}
+.sbody{padding:16px 18px}
+.badge{font-size:9pt;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.badge.none{background:#fdecee;color:#b02020}
+.badge.mine{background:#e8f6f0;color:var(--ok)}
+.badge.share{background:#f3ecff;color:#6b3fd4}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;background:#eef1f6;color:#39435c;font-size:10pt;font-weight:700;cursor:pointer}
+.tab.on{background:var(--brand);color:#fff}
+.pane2{display:none}.pane2.on{display:block}
+label.f{display:block;font-size:10pt;font-weight:700;margin:12px 0 5px;color:#39435c}
+input[type=text],input[type=password],select{width:100%;font-family:inherit;font-size:10.5pt;padding:10px 12px;
+  border:1px solid #c9d3e4;border-radius:8px;outline:none;background:#fff;color:var(--ink)}
+input:focus,select:focus{border-color:var(--brand)}
+.note{font-size:9.5pt;color:var(--muted);margin-top:6px;line-height:1.62}
+.note a{color:var(--brand)}
+.warn{background:#fffdf5;border:1px solid #ecdfae;border-radius:10px;padding:11px 15px;margin:12px 0;
+  font-size:9.8pt;color:#7a5200;line-height:1.65}
+footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-size:9.5pt;color:var(--muted)}
+</style></head><body>
+
+<div class="hero">
+  <span class="eyebrow">중학교 수학 · Amplify Classroom</span>
+  <h1>수식 변환</h1>
+  <p class="sub">교과서 사진을 넣으면 Amplify에 붙여넣을 수 있는 수식으로 바꿔 드립니다.</p>
+  <a class="home" href="./">← 도구 모음으로</a>
+</div>
+
+<details class="setup" id="setup">
+  <summary><span>⚙️ 사용 준비 <span style="font-weight:400;color:var(--muted);font-size:10pt">— 처음 한 번만 설정하시면 됩니다</span></span>
+    <span class="badge none" id="badge">설정 필요</span></summary>
+  <div class="sbody">
+    <div class="tabs">
+      <div class="tab on" data-t="mine">내 키 쓰기</div>
+      <div class="tab" data-t="share">공유 암호 쓰기</div>
+    </div>
+
+    <div class="pane2 on" id="p-mine">
+      <label class="f">어느 AI를 쓰시겠습니까?</label>
+      <select id="prov">
+        <option value="gemini">Google Gemini — 무료 등급이 있어 시작하기 쉽습니다</option>
+        <option value="openai">OpenAI (ChatGPT)</option>
+        <option value="claude">Anthropic Claude</option>
+      </select>
+      <label class="f">API 키</label>
+      <input type="password" id="key" placeholder="키를 붙여넣으세요" autocomplete="off" spellcheck="false">
+      <div class="note" id="keyhelp">
+        키가 없으시면 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 무료로 받으실 수 있습니다.
+        <a href="#" id="guidelink" target="_blank" rel="noopener">발급 절차 자세히 보기 →</a>
+      </div>
+      <div class="warn">키는 <b>이 브라우저에만</b> 저장되며 어디로도 전송되지 않습니다.
+        다만 공용 컴퓨터에서는 다른 사람이 개발자도구로 볼 수 있으니 쓰지 마시기 바랍니다.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="b-go" id="save" style="font-size:10.5pt;padding:10px 20px">저장하고 연결 확인</button>
+        <button class="b-sub" id="clear">지우기</button>
+      </div>
+    </div>
+
+    <div class="pane2" id="p-share">
+      <label class="f">공유 암호</label>
+      <input type="password" id="pass" placeholder="전달받은 암호를 입력하세요" autocomplete="off" spellcheck="false">
+      <div class="note">암호를 받으셨다면 따로 키를 만들지 않으셔도 됩니다. 키는 서버에만 있어 화면에 드러나지 않습니다.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="b-go" id="savep" style="font-size:10.5pt;padding:10px 20px">저장</button>
+        <button class="b-sub" id="clearp">지우기</button>
+      </div>
+    </div>
+  </div>
+</details>
+
+<h2><span class="n">1</span>교과서 사진 넣기</h2>
+<div id="drop">
+  <div class="big">📋</div>
+  <div class="t1">여기에 붙여넣기 (⌘V / Ctrl+V)</div>
+  <div class="t2">사진을 끌어다 놓거나, 눌러서 파일을 고르셔도 됩니다</div>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
+<div id="preview">
+  <img id="pimg" alt="넣으신 사진">
+  <div class="pbar">
+    <button class="b-go" id="go">수식으로 바꾸기</button>
+    <button class="b-sub" id="del">다른 사진 넣기</button>
+  </div>
+</div>
+<div id="status"></div>
+
+<h2 id="rh" style="display:none"><span class="n">2</span>결과 확인하고 복사하기</h2>
+<div id="result">
+  <div class="rgrid">
+    <div class="pane">
+      <div class="ph"><span>복사할 내용</span><button class="b-copy" id="copy" style="font-size:9.5pt;padding:6px 14px">복사</button></div>
+      <textarea id="code" spellcheck="false"></textarea>
+    </div>
+    <div class="pane">
+      <div class="ph"><span>Amplify에서 보일 모습</span><span style="font-weight:400;font-size:9pt">실제와 같은 엔진</span></div>
+      <div id="render"></div>
+    </div>
+  </div>
+  <div class="hintbar">왼쪽 글을 고치시면 오른쪽이 바로 따라 바뀝니다. 원하는 모양이 되면 <b>복사</b>를 눌러 Amplify에 붙여넣으세요.</div>
+</div>
+
+<footer>
+  Amplify에 직접 넣어 화면으로 확인한 규칙을 따릅니다 ·
+  <a href="math.html" style="color:var(--brand)">수식 입력 안내</a> ·
+  <a href="text.html" style="color:var(--brand)">글자 꾸미기</a><br>
+  2026 서울대학교사범대학부설중학교 허철호
+</footer>
+
+<script src="lib/jquery.min.js"></script>
+<script src="lib/mathquill.js"></script>
+<script src="shared-config.js" onerror="window.__noShare=1"></script>
+<script>
+(function(){
+'use strict';
+var PROMPT = "당신은 중학교 수학 교과서 지면을 Amplify Classroom(Desmos)에 넣을 수 있는 형태로 옮기는 일을 합니다.\n이미지에 보이는 수학 내용을 아래 규칙에 따라 그대로 옮겨 주세요.\n\n[가장 중요한 원칙]\n1. 수식은 앞뒤를 백틱(`)으로 감쌉니다.\n2. 기본은 LaTeX 문법입니다. 다만 교과서와 모양이 다른 기호는 명령어 대신 특수문자를 수식 안에 직접 넣습니다.\n3. 이미지에 있는 내용만 옮깁니다. 없는 것을 지어내지 않고, 있는 것을 빠뜨리지 않습니다.\n4. 한글 설명은 백틱 밖에 그대로 둡니다. 수식만 백틱으로 감쌉니다.\n\n[명령어로 쓰는 것]\n선분 \\overline{\\mathrm{AB}} · 아랫줄 \\underline{} · 직선 \\overleftrightarrow{\\mathrm{PQ}} · 호 \\overarc{\\mathrm{AB}}\n삼각형 \\triangle · 각 \\angle · 도 \\degree · 수직 \\perp · 평행사변형 \\parallelogram · 원 \\bigcirc\n분수 \\frac{}{} · 제곱근 \\sqrt{} · 세제곱근 \\sqrt[3]{} · 지수 ^2 ^{10} · 아래첨자 _1 _{12}\n\\neq \\leq \\geq · \\pm \\mp · \\times \\div \\cdot · \\infty · \\to\n굵게 \\mathbf{} · 색 \\textcolor{red}{} 또는 \\textcolor{#2f6bd8}{}\n비례식은 콜론을 그대로 씁니다: `2:3` 또는 `c\\ :\\ a\\ =\\ a\\ :\\ b`\n\n[반드시 특수문자를 직접 넣는 것 — 명령어를 쓰면 안 됩니다]\n닮음 ∽   (\\sim, \\backsim 금지 — 물결표라 교과서와 다릅니다)\n합동 ≡   (\\equiv 금지 — 렌더되지 않습니다)\n평행 ⫽   (\\parallel 금지 — 곧은 두 줄이라 교과서와 다릅니다)\n따라서 ∴  왜냐하면 ∵  함의 ⇒  동치 ⇔  근삿값 ≒  비례 ∝\n\n[렌더되지 않으므로 쓰지 말 것]\n\\therefore \\because \\Rightarrow \\Leftrightarrow \\equiv \\ldots \\cdots \\propto \\bot \\backsim \\text{} \\underbrace{} \\quad \\lim \\cbrt\n\\dfrac \\cfrac 는 \\frac 과 크기가 같으므로 \\frac 만 씁니다.\n\n[꼭짓점 글자]\nA, B, C 같은 점 이름은 반드시 \\mathrm{} 으로 감쌉니다. 쓰지 않으면 이탤릭이라 교과서 표기와 다릅니다.\n예: \\triangle\\mathrm{ABC}, \\angle\\mathrm{ACB}, \\overline{\\mathrm{BD}}\n단, a b c x y 같은 변·변수 문자는 \\mathrm 을 쓰지 않습니다(교과서도 이탤릭입니다).\n\n[공백 \\ (백슬래시+공백)]\n특수문자(∽ ≡ ⫽ ∴ ∵ ⇒) 앞뒤 → 반드시 넣습니다. 없으면 글자가 달라붙습니다.\n등호 = 와 비례식 콜론 : 앞뒤 → 넣습니다.\n+ − × ÷ → 넣지 않습니다. 자동으로 벌어집니다.\n\n[백틱 밖에 두는 것]\n말줄임표(…… ①), (AA 닮음) 같은 한글 괄호 설명, 번호표는 수식이 아니므로 백틱 밖에 둡니다.\n\\text{} 가 렌더되지 않으므로 수식 안에 한글을 넣지 마세요.\n\n[출력 형식]\n- 교과서의 줄바꿈과 들여쓰기를 그대로 살립니다.\n- 설명, 머리말, 코드펜스(```) 없이 변환 결과만 출력합니다.\n- 이미지에 수학 내용이 없으면 \"이미지에서 수학 내용을 찾지 못했습니다.\"라고만 답합니다.";
+var K='dtg_conv_v1';
+var cfg={mode:'mine',prov:'gemini',key:'',pass:''};
+try{var s=JSON.parse(localStorage.getItem(K)||'null'); if(s)cfg=Object.assign(cfg,s);}catch(e){}
+
+var $=function(id){return document.getElementById(id)};
+var MQ=MathQuill.getInterface(2);
+
+/* ── 설정 ── */
+function badge(){
+  var b=$('badge');
+  if(cfg.mode==='share'&&cfg.pass){b.className='badge share';b.textContent='공유 암호 사용 중';}
+  else if(cfg.mode==='mine'&&cfg.key){b.className='badge mine';b.textContent=({gemini:'Gemini',openai:'OpenAI',claude:'Claude'})[cfg.prov]+' 연결됨';}
+  else {b.className='badge none';b.textContent='설정 필요';}
+}
+function ready(){return (cfg.mode==='mine'&&cfg.key)||(cfg.mode==='share'&&cfg.pass);}
+function store(){try{localStorage.setItem(K,JSON.stringify(cfg));}catch(e){}}
+
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){
+  t.addEventListener('click',function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.remove('on')});
+    t.classList.add('on');
+    $('p-mine').classList.toggle('on',t.dataset.t==='mine');
+    $('p-share').classList.toggle('on',t.dataset.t==='share');
+  });
+});
+$('prov').addEventListener('change',function(){
+  var h={gemini:'키가 없으시면 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 무료로 받으실 수 있습니다. <a href="#" id="guidelink">발급 절차 자세히 보기 →</a>',
+         openai:'<a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI 대시보드</a>에서 키를 만드실 수 있습니다. (유료)',
+         claude:'<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic 콘솔</a>에서 키를 만드실 수 있습니다. (유료)'};
+  $('keyhelp').innerHTML=h[this.value];
+});
+
+$('save').addEventListener('click',async function(){
+  var k=$('key').value.trim();
+  if(!k){msg('err','키를 입력해 주세요.');return;}
+  this.disabled=true;var old=this.textContent;this.textContent='확인 중…';
+  cfg.mode='mine';cfg.prov=$('prov').value;cfg.key=k;
+  var r=await test();
+  this.disabled=false;this.textContent=old;
+  if(r===true){store();badge();msg('ok','연결되었습니다. 이제 사진을 넣어 주세요.');$('setup').open=false;}
+  else{msg('err','연결하지 못했습니다 — '+r);}
+});
+$('clear').addEventListener('click',function(){cfg.key='';$('key').value='';store();badge();msg('ok','지웠습니다.');});
+$('savep').addEventListener('click',function(){
+  var p=$('pass').value.trim();
+  if(!p){msg('err','암호를 입력해 주세요.');return;}
+  cfg.mode='share';cfg.pass=p;store();badge();
+  msg('ok','저장했습니다. 이제 사진을 넣어 주세요.');$('setup').open=false;
+});
+$('clearp').addEventListener('click',function(){cfg.pass='';$('pass').value='';store();badge();msg('ok','지웠습니다.');});
+
+function msg(k,t){var s=$('status');s.className=k;s.innerHTML=t;}
+
+/* ── 연결 확인 ── */
+async function test(){
+  try{
+    if(cfg.prov==='gemini'){
+      var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(cfg.key));
+      if(r.ok)return true; var d=await r.json().catch(function(){return{}});
+      return (d.error&&d.error.message)||('오류 '+r.status);
+    }
+    if(cfg.prov==='openai'){
+      var r2=await fetch('https://api.openai.com/v1/models',{headers:{authorization:'Bearer '+cfg.key}});
+      if(r2.ok)return true; return '키를 확인해 주세요 (오류 '+r2.status+')';
+    }
+    var r3=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'content-type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01',
+               'anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-5',max_tokens:1,messages:[{role:'user',content:'.'}]})});
+    if(r3.ok||r3.status===400)return true;
+    return '키를 확인해 주세요 (오류 '+r3.status+')';
+  }catch(e){return '네트워크에 연결하지 못했습니다.';}
+}
+
+/* ── 이미지 ── */
+var img=null;
+function setImg(f){
+  if(!f||!/^image\//.test(f.type)){msg('err','이미지 파일만 넣으실 수 있습니다.');return;}
+  if(f.size>7*1024*1024){msg('err','사진이 너무 큽니다(7MB 넘음). 필요한 부분만 잘라서 넣어 주세요.');return;}
+  var rd=new FileReader();
+  rd.onload=function(){
+    img={data:rd.result.split(',')[1],mime:f.type};
+    $('pimg').src=rd.result;$('preview').style.display='block';$('drop').style.display='none';
+    msg('ok','사진을 넣었습니다. <b>수식으로 바꾸기</b>를 눌러 주세요.');
+  };
+  rd.readAsDataURL(f);
+}
+$('drop').addEventListener('click',function(){$('file').click()});
+$('file').addEventListener('change',function(e){if(e.target.files[0])setImg(e.target.files[0]);e.target.value='';});
+$('del').addEventListener('click',function(){
+  img=null;$('preview').style.display='none';$('drop').style.display='block';
+  $('result').style.display='none';$('rh').style.display='none';$('status').className='';
+});
+['dragenter','dragover'].forEach(function(n){$('drop').addEventListener(n,function(e){e.preventDefault();this.classList.add('over')})});
+['dragleave','drop'].forEach(function(n){$('drop').addEventListener(n,function(e){e.preventDefault();this.classList.remove('over')})});
+$('drop').addEventListener('drop',function(e){if(e.dataTransfer.files[0])setImg(e.dataTransfer.files[0])});
+document.addEventListener('paste',function(e){
+  var it=e.clipboardData&&e.clipboardData.items; if(!it)return;
+  for(var i=0;i<it.length;i++) if(it[i].type.indexOf('image')===0){setImg(it[i].getAsFile());e.preventDefault();return;}
+});
+
+/* ── 변환 ── */
+$('go').addEventListener('click',async function(){
+  if(!img){msg('err','먼저 사진을 넣어 주세요.');return;}
+  if(!ready()){msg('err','먼저 <b>사용 준비</b>에서 키나 공유 암호를 설정해 주세요.');$('setup').open=true;return;}
+  this.disabled=true;var old=this.textContent;this.textContent='바꾸는 중…';
+  msg('go','AI가 사진을 읽고 있습니다. 10초쯤 걸립니다…');
+  try{
+    var text=await convert();
+    text=text.replace(/^\s*```[a-z]*\n?/i,'').replace(/```\s*$/,'').trim();
+    $('code').value=text; draw();
+    $('result').style.display='block';$('rh').style.display='block';
+    msg('ok','다 바꿨습니다. 오른쪽에서 모양을 확인하시고 복사해 주세요.');
+    $('rh').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ msg('err',e.message||'변환에 실패했습니다.'); }
+  this.disabled=false;this.textContent=old;
+});
+
+async function convert(){
+  if(cfg.mode==='share'){
+    var r=await fetch(SHARE_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({password:cfg.pass,prompt:PROMPT,image:img.data,mime:img.mime})});
+    var d=await r.json().catch(function(){return{}});
+    if(!r.ok)throw new Error(d.error||('오류 '+r.status));
+    return d.text||'';
+  }
+  if(cfg.prov==='gemini'){
+    var r1=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(cfg.key),
+      {method:'POST',headers:{'content-type':'application/json'},
+       body:JSON.stringify({contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:img.mime,data:img.data}}]}],
+                            generationConfig:{temperature:0}})});
+    var d1=await r1.json().catch(function(){return{}});
+    if(!r1.ok)throw new Error((d1.error&&d1.error.message)||('오류 '+r1.status));
+    var p=d1.candidates&&d1.candidates[0]&&d1.candidates[0].content&&d1.candidates[0].content.parts;
+    return p?p.map(function(x){return x.text||''}).join(''):'';
+  }
+  if(cfg.prov==='openai'){
+    var r2=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+      headers:{'content-type':'application/json',authorization:'Bearer '+cfg.key},
+      body:JSON.stringify({model:'gpt-4o',temperature:0,messages:[{role:'user',content:[
+        {type:'text',text:PROMPT},
+        {type:'image_url',image_url:{url:'data:'+img.mime+';base64,'+img.data}}]}]})});
+    var d2=await r2.json().catch(function(){return{}});
+    if(!r2.ok)throw new Error((d2.error&&d2.error.message)||('오류 '+r2.status));
+    return d2.choices[0].message.content;
+  }
+  var r3=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'content-type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01',
+             'anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-5',max_tokens:2000,messages:[{role:'user',content:[
+      {type:'image',source:{type:'base64',media_type:img.mime,data:img.data}},
+      {type:'text',text:PROMPT}]}]})});
+  var d3=await r3.json().catch(function(){return{}});
+  if(!r3.ok)throw new Error((d3.error&&d3.error.message)||('오류 '+r3.status));
+  return d3.content.map(function(x){return x.text||''}).join('');
+}
+
+/* ── 미리보기 — Amplify와 같은 MathQuill로 그린다 ── */
+function draw(){
+  var box=$('render'); box.textContent='';
+  $('code').value.split('\n').forEach(function(line){
+    var row=document.createElement('div');
+    if(!line.trim()){row.style.height='1em';box.appendChild(row);return;}
+    // 백틱 안은 수식으로, 밖은 글자 그대로
+    line.split(/(`[^`]*`)/).forEach(function(piece){
+      if(!piece)return;
+      if(piece.charAt(0)==='`'&&piece.charAt(piece.length-1)==='`'&&piece.length>1){
+        var sp=document.createElement('span'); sp.className='mq'; row.appendChild(sp);
+        try{ MQ.StaticMath(sp).latex(piece.slice(1,-1)); }
+        catch(e){ sp.textContent=piece; sp.style.color='#b02020'; }
+      } else {
+        row.appendChild(document.createTextNode(piece));
+      }
+    });
+    box.appendChild(row);
+  });
+}
+var t=null;
+$('code').addEventListener('input',function(){clearTimeout(t);t=setTimeout(draw,250);});
+
+$('copy').addEventListener('click',function(){
+  var v=$('code').value;
+  function done(){var b=$('copy');var o=b.textContent;b.textContent='복사했습니다';setTimeout(function(){b.textContent=o},1600);}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(done);}
+  else{$('code').select();document.execCommand('copy');done();}
+});
+
+/* ── 시작 ── */
+var SHARE_ENDPOINT=(window.SHARE_ENDPOINT||'');
+if(!SHARE_ENDPOINT){
+  // 공유 기능이 아직 연결되지 않았으면 그 탭을 숨긴다
+  var st=document.querySelector('.tab[data-t="share"]'); if(st)st.style.display='none';
+}
+var GUIDE=window.GUIDE_URL||'https://getbetterwithu.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a';
+Array.prototype.forEach.call(document.querySelectorAll('#guidelink'),function(g){g.href=GUIDE;g.target='_blank';g.rel='noopener';});
+// 제공자를 바꿔 안내문이 새로 그려질 때도 링크를 다시 걸어 준다
+$('prov').addEventListener('change',function(){
+  var g=$('guidelink'); if(g){g.href=GUIDE;g.target='_blank';g.rel='noopener';}
+});
+$('prov').value=cfg.prov;
+if(cfg.key)$('key').value=cfg.key;
+if(cfg.pass)$('pass').value=cfg.pass;
+if(cfg.mode==='share'){var sh=document.querySelector('.tab[data-t="share"]'); if(sh)sh.click();}
+badge();
+if(!ready())$('setup').open=true;
+})();
+</script>
+</body></html>

@@ -70,8 +70,24 @@ a.gobtn .ga{font-size:12pt;font-weight:800}
 
 /* 복사 상자 */
 .copybox{background:linear-gradient(180deg,#fff,#fafbfe);border:2px dashed var(--accent);
-  border-radius:12px;padding:20px 18px;font-size:21pt;line-height:2;text-align:center;
-  margin:14px 0;user-select:all;letter-spacing:.06em;color:#2a2f3a}
+  border-radius:12px;padding:18px 14px;margin:14px 0;text-align:center;
+  display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+/* 기호 하나하나를 눌러서 복사한다 — 예전에는 user-select:all 이라 통째로만 잡혔다 */
+.sym{font-size:19pt;line-height:1;color:#2a2f3a;background:#fff;border:1px solid #e6d5e0;
+  border-radius:9px;padding:9px 13px;cursor:pointer;font-family:inherit;
+  transition:.12s;min-width:48px;position:relative}
+.sym:hover{border-color:var(--accent);background:#fff5fa;transform:translateY(-1px)}
+.sym:active{transform:translateY(0)}
+.sym.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.sym::after{content:attr(data-n);position:absolute;left:50%;transform:translateX(-50%);
+  bottom:calc(100% + 6px);background:#12151b;color:#fff;font-size:8.5pt;font-family:inherit;
+  padding:3px 8px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:.12s}
+.sym:hover::after{opacity:1}
+.copyall{margin:10px 0 0;text-align:center}
+.copyall button{font-family:inherit;font-size:10pt;font-weight:700;background:#eef1f6;color:#39435c;
+  border:0;border-radius:8px;padding:8px 16px;cursor:pointer}
+.copyall button:hover{background:#e2e7ef}
+@media print{.copybox{display:block}.sym{display:inline-block;border:0;padding:2px 6px}.sym::after{display:none}.copyall{display:none}}
 
 a{color:var(--brand);text-decoration:none;border-bottom:1.5px solid #c5d5e8;padding-bottom:1px}
 a:hover{border-bottom-color:var(--brand)}
@@ -103,12 +119,15 @@ footer .fbox{margin:18px auto 0;max-width:520px;padding:12px 20px;
   code{white-space:normal;word-break:break-all}
   .c0,.c1,.c2,.cs{width:auto} .copybox{font-size:16pt}
 }
+.home{display:inline-block;margin-top:14px;font-size:10pt;color:var(--brand);text-decoration:none;font-weight:600;border:0}
+.home:hover{text-decoration:underline}
 </style></head><body>
 
 <div class="hero">
 <span class="eyebrow">중학교 수학 · Amplify Classroom</span>
 <h1>Amplify에 수학 기호 넣기</h1>
 <p class="sub">메모와 수식 답변에 수식 또는 수학 기호를 넣는 방법</p>
+  <a class="home" href="./">← 도구 모음으로</a>
 </div>
 
 <div class="rule">
@@ -134,8 +153,9 @@ footer .fbox{margin:18px auto 0;max-width:520px;padding:12px 20px;
 <tbody><tr><td class=c0>닮음</td><td class=cs>∽</td><td class=c1><code>`\triangle\mathrm{ABC}\ ∽\ \triangle\mathrm{DEF}`</code></td><td class=c2><span class="tex">\triangle\mathrm{ABC}\ ∽\ \triangle\mathrm{DEF}</span></td></tr><tr><td class=c0>합동</td><td class=cs>≡</td><td class=c1><code>`\triangle\mathrm{ABC}\ ≡\ \triangle\mathrm{DEF}`</code></td><td class=c2><span class="tex">\triangle\mathrm{ABC}\ ≡\ \triangle\mathrm{DEF}</span></td></tr><tr><td class=c0>평행</td><td class=cs>⫽</td><td class=c1><code>`\overline{\mathrm{AB}}\ ⫽\ \overline{\mathrm{CD}}`</code></td><td class=c2><span class="tex">\overline{\mathrm{AB}}\ ⫽\ \overline{\mathrm{CD}}</span></td></tr><tr><td class=c0>따라서</td><td class=cs>∴</td><td class=c1><code>`∴\ \angle\mathrm{A}\ =\ \angle\mathrm{D}`</code></td><td class=c2><span class="tex">∴\ \angle\mathrm{A}\ =\ \angle\mathrm{D}</span></td></tr><tr><td class=c0>왜냐하면</td><td class=cs>∵</td><td class=c1><code>`∵\ \overline{\mathrm{AM}}\ =\ \overline{\mathrm{MB}}`</code></td><td class=c2><span class="tex">∵\ \overline{\mathrm{AM}}\ =\ \overline{\mathrm{MB}}</span></td></tr><tr><td class=c0>그러면</td><td class=cs>⇒</td><td class=c1><code>`\mathrm{A}\ ⇒\ \mathrm{B}`</code></td><td class=c2><span class="tex">\mathrm{A}\ ⇒\ \mathrm{B}</span></td></tr><tr><td class=c0>근삿값</td><td class=cs>≒</td><td class=c1><code>`\pi\ ≒\ 3.14`</code></td><td class=c2><span class="tex">\pi\ ≒\ 3.14</span></td></tr></tbody></table></div>
 
 <h2 class="b q" style="margin-top:26px">아래에서 기호를 복사해 쓰세요</h2>
-<div class="copybox">∽ &nbsp; ≡ &nbsp; ⫽ &nbsp; ∴ &nbsp; ∵ &nbsp; ⇒ &nbsp; ⇔ &nbsp; … &nbsp; ≒ &nbsp; ∝ &nbsp; ⊥ &nbsp; ∠ &nbsp; △ &nbsp; ▱ &nbsp; ⌒ &nbsp; ° &nbsp; ± &nbsp; × &nbsp; ÷ &nbsp; ≠ &nbsp; ≤ &nbsp; ≥ &nbsp; ∞</div>
-<p class="note">한 번 복사해 두시면 계속 쓰실 수 있습니다.
+<div class="copybox"><button class="sym" data-n="닮음">∽</button><button class="sym" data-n="합동">≡</button><button class="sym" data-n="평행">⫽</button><button class="sym" data-n="따라서">∴</button><button class="sym" data-n="왜냐하면">∵</button><button class="sym" data-n="그러면">⇒</button><button class="sym" data-n="동치">⇔</button><button class="sym" data-n="말줄임">…</button><button class="sym" data-n="근삿값">≒</button><button class="sym" data-n="비례">∝</button><button class="sym" data-n="수직">⊥</button><button class="sym" data-n="각">∠</button><button class="sym" data-n="삼각형">△</button><button class="sym" data-n="평행사변형">▱</button><button class="sym" data-n="호">⌒</button><button class="sym" data-n="도">°</button><button class="sym" data-n="플러스마이너스">±</button><button class="sym" data-n="곱하기">×</button><button class="sym" data-n="나누기">÷</button><button class="sym" data-n="같지 않다">≠</button><button class="sym" data-n="작거나 같다">≤</button><button class="sym" data-n="크거나 같다">≥</button><button class="sym" data-n="무한대">∞</button></div>
+<div class="copyall"><button id="allsym">기호 전체 복사</button></div>
+<p class="note"><b>기호를 누르면 하나씩 복사됩니다.</b> 여러 개가 필요하시면 아래 [기호 전체 복사]를 쓰세요.
 그 밖에 한글에서 <b>ㄷ + 한자키</b>, 맥은 <b>Ctrl+Cmd+Space</b>, 윈도우는 <b>윈도우키 + 마침표</b>로도 넣으실 수 있습니다.</p>
 
 <h2 class="b q" style="margin-top:34px">왜 이 세 가지만 복사해서 쓰나요?</h2>
@@ -170,7 +190,7 @@ footer .fbox{margin:18px auto 0;max-width:520px;padding:12px 20px;
     &nbsp; <code>#2f6bd8</code> 같은 색 번호도 됩니다</td></tr>
 <tr class="hl"><td class=c0>일반 글자</td>
     <td>명령어가 통하지 않습니다. <b>이미 꾸며진 글자를 복사해</b> 쓰셔야 합니다.
-    <a class="gobtn" href="index.html"><span class="gi">🎨</span><span class="gt">글자 꾸미기 페이지 열기</span><span class="ga">→</span></a></td></tr>
+    <a class="gobtn" href="text.html"><span class="gi">🎨</span><span class="gt">글자 꾸미기 페이지 열기</span><span class="ga">→</span></a></td></tr>
 </tbody></table></div>
 
 <footer>
@@ -189,5 +209,28 @@ document.querySelectorAll('.tex').forEach(function(el){
   var f = MQ.StaticMath(el);
   f.latex(tex);
 });
+</script>
+<script>
+(function(){
+  function copy(t,el){
+    function ok(){ if(!el)return; el.classList.add('done'); setTimeout(function(){el.classList.remove('done')},700); }
+    if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,function(){fallback(t,ok)});}
+    else fallback(t,ok);
+  }
+  function fallback(t,ok){
+    var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';
+    document.body.appendChild(a);a.select();
+    try{document.execCommand('copy');ok();}catch(e){}
+    document.body.removeChild(a);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.sym'),function(b){
+    b.addEventListener('click',function(){copy(b.textContent,b)});
+  });
+  var all=document.getElementById('allsym');
+  if(all)all.addEventListener('click',function(){
+    var t=Array.prototype.map.call(document.querySelectorAll('.sym'),function(b){return b.textContent}).join(' ');
+    copy(t);var o=all.textContent;all.textContent='복사했습니다';setTimeout(function(){all.textContent=o},1400);
+  });
+})();
 </script>
 </body></html>
