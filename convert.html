@@ -98,6 +98,9 @@ input[type=text],input[type=password],select{width:100%;font-family:inherit;font
 input:focus,select:focus{border-color:var(--brand)}
 .note{font-size:9.5pt;color:var(--muted);margin-top:6px;line-height:1.62}
 .note a{color:var(--brand)}
+.warnnote{background:#fffdf5;border:1px solid #ecdfae;border-radius:9px;padding:9px 13px;
+  color:#7a5200;margin-top:7px}
+.warnnote b{color:#b8860b}
 .smsg{display:none;margin-top:12px;padding:11px 15px;border-radius:9px;font-size:10.2pt;line-height:1.6}
 .smsg.ok{display:block;background:#e8f6f0;border:1px solid #b6e3ce;color:var(--ok)}
 .smsg.err{display:block;background:#fdecee;border:1px solid #f3c3c8;color:#b02020;word-break:break-word}
@@ -226,10 +229,12 @@ var PROV = {
   gemini:{ name:'Google Gemini', tag:'무료 등급 있음', model:'gemini-3.7-flash', kind:'gemini',
     list:'https://generativelanguage.googleapis.com/v1beta/models',
     url:'https://aistudio.google.com/apikey', note:'무료 등급이 있어 시작하기 쉽습니다. 이 도구에는 이 쪽을 권합니다.' },
-  upstage:{ name:'Upstage Solar', tag:'국내', model:'solar-pro4', kind:'openai',
+  upstage:{ name:'Upstage Solar', tag:'국내 · 사진은 못 읽습니다', model:'solar-pro4', kind:'openai',
     ep:'https://api.upstage.ai/v1/chat/completions',
     list:'https://api.upstage.ai/v1/models',
-    url:'https://console.upstage.ai/api-keys', note:'국내 서비스입니다. 이미지를 읽는 모델을 고르셔야 합니다.' },
+    url:'https://console.upstage.ai/api-keys',
+    warn:true,
+    note:'⚠ Solar는 글만 읽고 <b>사진은 읽지 못합니다</b>(Solar Pro 3·4 모두). 이 도구는 사진을 넣는 것이라 Upstage로는 쓰실 수 없습니다. <b>Google Gemini</b>를 쓰시기 바랍니다.' },
   openai:{ name:'OpenAI (ChatGPT)', model:'gpt-5.5', kind:'openai',
     ep:'https://api.openai.com/v1/chat/completions',
     list:'https://api.openai.com/v1/models',
@@ -257,6 +262,7 @@ function badge(){
 /* 고른 곳에 맞춰 칸을 보여 준다 */
 function paintProv(){
   var v=$('prov').value, P=PROV[v]||{};
+  $('provnote').className = 'note' + (P.warn?' warnnote':'');
   $('provnote').innerHTML = (P.note||'') +
     (P.url?' <a href="'+P.url+'" target="_blank" rel="noopener">키 받으러 가기 →</a>':'') +
     (v==='gemini'?' <a href="'+GUIDE+'" target="_blank" rel="noopener">발급 절차 자세히 보기 →</a>':'');
