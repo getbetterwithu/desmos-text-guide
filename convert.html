@@ -100,7 +100,7 @@ input:focus,select:focus{border-color:var(--brand)}
 .note a{color:var(--brand)}
 .smsg{display:none;margin-top:12px;padding:11px 15px;border-radius:9px;font-size:10.2pt;line-height:1.6}
 .smsg.ok{display:block;background:#e8f6f0;border:1px solid #b6e3ce;color:var(--ok)}
-.smsg.err{display:block;background:#fdecee;border:1px solid #f3c3c8;color:#b02020}
+.smsg.err{display:block;background:#fdecee;border:1px solid #f3c3c8;color:#b02020;word-break:break-word}
 .smsg.go{display:block;background:#eef4fb;border:1px solid #c3d9f0;color:var(--brand)}
 .warn{background:#fffdf5;border:1px solid #ecdfae;border-radius:10px;padding:11px 15px;margin:12px 0;
   font-size:9.8pt;color:#7a5200;line-height:1.65}
@@ -370,15 +370,24 @@ async function test(){
   /* 1x1 흰 점 한 장을 보내 본다 — 키뿐 아니라 '이미지를 읽는 모델인가'까지 걸러진다 */
   var PX='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
   try{
-    var out=await callAI('.', {data:PX, mime:'image/png'}, 8);
+    await callAI('이 그림에 무엇이 있습니까?', {data:PX, mime:'image/png'}, 64);
     return true;
   }catch(e){
     var m=String(e.message||e);
-    if(/image|vision|multimodal|modal/i.test(m))
-      return '이 모델은 이미지를 읽지 못합니다. <b>[목록 불러오기]</b>를 눌러 다른 모델을 골라 보세요.';
-    if(/no longer available|not found|does not exist|decommission/i.test(m))
-      return m+'<br><b>[목록 불러오기]</b>를 누르시면 지금 쓰실 수 있는 모델이 나옵니다.';
-    return m;
+    var esc=m.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    /* 어떤 이유로 실패했는지는 서비스가 준 말을 그대로 보여 준다.
+       예전에는 'image' 같은 낱말만 보고 단정했는데, 그러면 진짜 원인이 가려졌다. */
+    var hint='';
+    if(/does not support|not supported|unsupported|only supports text|text.only/i.test(m)
+       && /image|vision|multimodal/i.test(m))
+      hint='<br>→ 이 모델은 <b>이미지를 읽지 못하는</b> 것으로 보입니다. <b>[목록 불러오기]</b>로 다른 모델을 골라 보세요.';
+    else if(/no longer available|not found|does not exist|decommission|invalid model|unknown model/i.test(m))
+      hint='<br>→ <b>[목록 불러오기]</b>를 누르시면 지금 쓰실 수 있는 모델이 나옵니다.';
+    else if(/api key|unauthor|invalid_api_key|401|permission/i.test(m))
+      hint='<br>→ 키를 다시 확인해 주세요. 앞뒤 공백이 섞이지 않았는지도 보시면 좋습니다.';
+    else if(/quota|rate.?limit|429|exceed/i.test(m))
+      hint='<br>→ 사용량이 한도에 닿았습니다. 잠시 뒤 다시 해 보세요.';
+    return esc + hint;
   }
 }
 
