@@ -98,6 +98,18 @@ input[type=text],input[type=password],select{width:100%;font-family:inherit;font
 input:focus,select:focus{border-color:var(--brand)}
 .note{font-size:9.5pt;color:var(--muted);margin-top:6px;line-height:1.62}
 .note a{color:var(--brand)}
+.step2{font-size:10.6pt;font-weight:700;margin:18px 0 7px;color:#39435c;display:flex;align-items:center;gap:8px}
+.step2 .sn{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;
+  border-radius:50%;background:var(--brand);color:#fff;font-size:9.4pt;flex:none}
+.step2.done .sn{background:var(--ok)}
+details.manual{margin-top:10px}
+details.manual>summary{font-size:9.6pt;color:var(--muted);cursor:pointer;list-style:none}
+details.manual>summary::-webkit-details-marker{display:none}
+details.manual>summary::before{content:'▸ ';color:var(--brand)}
+details.manual[open]>summary::before{content:'▾ '}
+#modelsel{font-family:inherit;font-size:10.5pt;padding:10px 12px;border:1px solid #c9d3e4;
+  border-radius:8px;background:#fff;color:var(--ink)}
+#modelsel:disabled{background:#f6f8fb;color:#9aa6b8}
 .warnnote{background:#fffdf5;border:1px solid #ecdfae;border-radius:9px;padding:9px 13px;
   color:#7a5200;margin-top:7px}
 .warnnote b{color:#b8860b}
@@ -127,28 +139,33 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
     </div>
 
     <div class="pane2 on" id="p-mine">
-      <label class="f">어느 AI를 쓰시겠습니까?</label>
+      <div class="step2"><span class="sn">1</span>어느 AI를 쓰시겠습니까?</div>
       <select id="prov"></select>
       <div class="note" id="provnote"></div>
-      <div id="modelrow" style="display:none">
-        <label class="f">모델 이름</label>
-        <div style="display:flex;gap:7px;align-items:stretch">
-          <input type="text" id="model" placeholder="모델 이름" autocomplete="off" spellcheck="false" list="modellist" style="flex:1">
-          <button class="b-sub" id="fetchmodels" type="button" style="white-space:nowrap;font-size:9.8pt;padding:0 14px">목록 불러오기</button>
-        </div>
-        <datalist id="modellist"></datalist>
-        <div class="note" id="modelnote">모델 이름이 바뀌어 연결이 안 될 때는 <b>[목록 불러오기]</b>를 누르시면 지금 쓰실 수 있는 모델이 나옵니다. <span class="muted2">(키를 먼저 넣어 주세요)</span></div>
-      </div>
+
       <div id="customrow" style="display:none">
-        <label class="f">Base URL</label>
+        <div class="step2"><span class="sn">2</span>Base URL</div>
         <input type="text" id="endpoint" placeholder="https://api.example.com/v1" autocomplete="off" spellcheck="false">
-        <div class="note">받으신 주소를 그대로 넣으세요. <b>/v1</b> 까지만 적으셔도 되고,
-          <b>/v1/chat/completions</b> 전체를 적으셔도 됩니다. 뒷부분은 알아서 붙입니다.</div>
+        <div class="note">받으신 주소를 그대로 넣으세요. 뒷부분은 알아서 붙입니다.</div>
       </div>
-      <label class="f">API 키</label>
+
+      <div class="step2"><span class="sn" id="sn-key">2</span>API 키</div>
       <input type="password" id="key" placeholder="키를 붙여넣으세요" autocomplete="off" spellcheck="false">
       <div class="warn">키는 <b>이 브라우저에만</b> 저장되며 어디로도 전송되지 않습니다.
         다만 공용 컴퓨터에서는 다른 사람이 개발자도구로 볼 수 있으니 쓰지 마시기 바랍니다.</div>
+
+      <div class="step2"><span class="sn" id="sn-model">3</span>모델 고르기</div>
+      <div id="modelrow">
+        <div style="display:flex;gap:7px;align-items:stretch">
+          <select id="modelsel" style="flex:1"><option value="">먼저 [사진 되는 모델 찾기]를 눌러 주세요</option></select>
+          <button class="b-go" id="fetchmodels" type="button" style="white-space:nowrap;font-size:9.8pt;padding:0 15px">사진 되는 모델 찾기</button>
+        </div>
+        <div class="note" id="modelnote">키를 넣으신 뒤 누르시면, <b>사진을 실제로 읽을 수 있는 모델만</b> 골라서 보여 드립니다.</div>
+        <details class="manual"><summary>모델 이름을 직접 넣기</summary>
+          <input type="text" id="model" placeholder="모델 이름" autocomplete="off" spellcheck="false" style="margin-top:8px">
+        </details>
+      </div>
+
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         <button class="b-go" id="save" style="font-size:10.5pt;padding:10px 20px">저장하고 연결 확인</button>
         <button class="b-sub" id="clear">지우기</button>
@@ -220,7 +237,7 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-si
 'use strict';
 var PROMPT = "당신은 중학교 수학 교과서 지면을 Amplify Classroom(Desmos)에 넣을 수 있는 형태로 옮기는 일을 합니다.\n이미지에 보이는 수학 내용을 아래 규칙에 따라 그대로 옮겨 주세요.\n\n[가장 중요한 원칙]\n1. 수식은 앞뒤를 백틱(`)으로 감쌉니다.\n2. 기본은 LaTeX 문법입니다. 다만 교과서와 모양이 다른 기호는 명령어 대신 특수문자를 수식 안에 직접 넣습니다.\n3. 이미지에 있는 내용만 옮깁니다. 없는 것을 지어내지 않고, 있는 것을 빠뜨리지 않습니다.\n4. 한글 설명은 백틱 밖에 그대로 둡니다. 수식만 백틱으로 감쌉니다.\n\n[명령어로 쓰는 것]\n선분 \\overline{\\mathrm{AB}} · 아랫줄 \\underline{} · 직선 \\overleftrightarrow{\\mathrm{PQ}} · 호 \\overarc{\\mathrm{AB}}\n삼각형 \\triangle · 각 \\angle · 도 \\degree · 수직 \\perp · 평행사변형 \\parallelogram · 원 \\bigcirc\n분수 \\frac{}{} · 제곱근 \\sqrt{} · 세제곱근 \\sqrt[3]{} · 지수 ^2 ^{10} · 아래첨자 _1 _{12}\n\\neq \\leq \\geq · \\pm \\mp · \\times \\div \\cdot · \\infty · \\to\n굵게 \\mathbf{} · 색 \\textcolor{red}{} 또는 \\textcolor{#2f6bd8}{}\n비례식은 콜론을 그대로 씁니다: `2:3` 또는 `c\\ :\\ a\\ =\\ a\\ :\\ b`\n\n[반드시 특수문자를 직접 넣는 것 — 명령어를 쓰면 안 됩니다]\n닮음 ∽   (\\sim, \\backsim 금지 — 물결표라 교과서와 다릅니다)\n합동 ≡   (\\equiv 금지 — 렌더되지 않습니다)\n평행 ⫽   (\\parallel 금지 — 곧은 두 줄이라 교과서와 다릅니다)\n따라서 ∴  왜냐하면 ∵  함의 ⇒  동치 ⇔  근삿값 ≒  비례 ∝\n\n[렌더되지 않으므로 쓰지 말 것]\n\\therefore \\because \\Rightarrow \\Leftrightarrow \\equiv \\ldots \\cdots \\propto \\bot \\backsim \\text{} \\underbrace{} \\quad \\lim \\cbrt\n\\dfrac \\cfrac 는 \\frac 과 크기가 같으므로 \\frac 만 씁니다.\n\n[꼭짓점 글자]\nA, B, C 같은 점 이름은 반드시 \\mathrm{} 으로 감쌉니다. 쓰지 않으면 이탤릭이라 교과서 표기와 다릅니다.\n예: \\triangle\\mathrm{ABC}, \\angle\\mathrm{ACB}, \\overline{\\mathrm{BD}}\n단, a b c x y 같은 변·변수 문자는 \\mathrm 을 쓰지 않습니다(교과서도 이탤릭입니다).\n\n[공백 \\ (백슬래시+공백)]\n특수문자(∽ ≡ ⫽ ∴ ∵ ⇒) 앞뒤 → 반드시 넣습니다. 없으면 글자가 달라붙습니다.\n등호 = 와 비례식 콜론 : 앞뒤 → 넣습니다.\n+ − × ÷ → 넣지 않습니다. 자동으로 벌어집니다.\n\n[백틱 밖에 두는 것]\n말줄임표(…… ①), (AA 닮음) 같은 한글 괄호 설명, 번호표는 수식이 아니므로 백틱 밖에 둡니다.\n\\text{} 가 렌더되지 않으므로 수식 안에 한글을 넣지 마세요.\n\n[출력 형식]\n- 교과서의 줄바꿈과 들여쓰기를 그대로 살립니다.\n- 설명, 머리말, 코드펜스(```) 없이 변환 결과만 출력합니다.\n- 이미지에 수학 내용이 없으면 \"이미지에서 수학 내용을 찾지 못했습니다.\"라고만 답합니다.";
 var GUIDE=window.GUIDE_URL||'https://getbetterwithu.notion.site/Gemini-API-3d8cd3403dc38142aff2c200dc32390a';
-var K='dtg_conv_v2';
+var K='dtg_conv_v3';
 var cfg={mode:'mine',prov:'gemini',key:'',pass:'',model:'',endpoint:''};
 
 /* 브라우저에서 직접 부를 수 있는 곳만 넣었다 (CORS 실측 확인 2026-09-11).
@@ -266,12 +283,16 @@ function paintProv(){
   $('provnote').innerHTML = (P.note||'') +
     (P.url?' <a href="'+P.url+'" target="_blank" rel="noopener">키 받으러 가기 →</a>':'') +
     (v==='gemini'?' <a href="'+GUIDE+'" target="_blank" rel="noopener">발급 절차 자세히 보기 →</a>':'');
-  $('modelrow').style.display='block';
   $('customrow').style.display=P.custom?'block':'none';
-  if(!$('model').value||$('model').dataset.auto==='1'){
-    $('model').value=P.model||''; $('model').dataset.auto='1';
-  }
-  $('model').placeholder=P.model||'모델 이름을 넣어 주세요';
+  /* 단계 번호는 Base URL 칸이 있느냐에 따라 달라진다 */
+  $('sn-key').textContent=P.custom?'3':'2';
+  $('sn-model').textContent=P.custom?'4':'3';
+  $('model').placeholder=P.model||'모델 이름';
+  /* 곳을 바꾸면 찾아 둔 목록은 무효 */
+  var sel=$('modelsel');
+  sel.innerHTML='<option value="">먼저 [사진 되는 모델 찾기]를 눌러 주세요</option>';
+  sel.disabled=true;
+  $('sn-model').parentNode.classList.remove('done');
 }
 function ready(){return (cfg.mode==='mine'&&cfg.key)||(cfg.mode==='share'&&cfg.pass);}
 function store(){try{localStorage.setItem(K,JSON.stringify(cfg));}catch(e){}}
@@ -295,77 +316,99 @@ $('prov').addEventListener('change',function(){
 });
 $('model').addEventListener('input',function(){this.dataset.auto='0';});
 
-/* 그 계정에서 실제로 쓸 수 있는 모델을 받아 온다 — 모델 이름이 바뀌어도 여기서 고르면 된다 */
+/* 후보를 추려 실제로 사진을 보내 보고, 되는 것만 남긴다.
+   목록에 '이미지 가능' 표시가 없는 서비스가 많아서, 물어보는 편이 확실하다. */
+var PX1='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+async function listModels(P,k){
+  var url=listOf(P);
+  if(!url)throw new Error('먼저 Base URL 을 넣어 주세요.');
+  if(P.kind==='gemini'){
+    var r=await fetch(url+'?key='+encodeURIComponent(k)+'&pageSize=1000');
+    var d=await r.json();
+    if(!r.ok)throw new Error(errOf(d,r.status));
+    return (d.models||[])
+      .filter(function(m){return (m.supportedGenerationMethods||[]).indexOf('generateContent')>=0})
+      .map(function(m){return String(m.name||'').replace(/^models\//,'')});
+  }
+  var r2=await fetch(url,{headers:{authorization:'Bearer '+k}});
+  var d2=await r2.json();
+  if(!r2.ok)throw new Error(errOf(d2,r2.status));
+  return (d2.data||[]).map(function(m){return m.id}).filter(Boolean);
+}
+
+/* 사진을 못 읽을 것이 뻔한 이름은 미리 걷어낸다 — 시험 횟수를 줄이려는 것 */
+function likely(ids){
+  var no=/embed|embedding|tts|audio|speech|whisper|moderation|rerank|guard|safety|translate|image-gen|imagen|dall|veo|music|voice|solar/i;
+    var yes=/vision|vl\b|gpt|gemini|claude|pixtral|llava|qwen.*v|intern|flash|pro|sonnet|opus|haiku|o\d/i;
+  var a=ids.filter(function(x){return !no.test(x)&&yes.test(x)});
+  var b=ids.filter(function(x){return !no.test(x)&&!yes.test(x)});
+  return a.concat(b);
+}
+
+async function canSeeImage(P,k,model){
+  var save=cfg.model; cfg.model=model;
+  try{ await callAI('이 그림에 무엇이 있습니까?',{data:PX1,mime:'image/png'},32); return true; }
+  catch(e){ return false; }
+  finally{ cfg.model=save; }
+}
+
 $('fetchmodels').addEventListener('click',async function(){
   var k=$('key').value.trim();
-  if(!k){smsg('err','먼저 API 키를 넣어 주세요.');return;}
+  if(!k){smsg('err','먼저 <b>API 키</b>를 넣어 주세요.');return;}
   var P=PROV[$('prov').value]||{};
-  if(P.kind==='claude'){smsg('err','Claude는 목록을 받아 올 수 없습니다. 모델 이름을 직접 넣어 주세요.');return;}
-  cfg.endpoint=$('endpoint').value.trim();
-  var url=listOf(P);
-  if(!url){smsg('err','먼저 Base URL 을 넣어 주세요.');return;}
-  this.disabled=true;var old=this.textContent;this.textContent='받는 중…';
+  cfg.prov=$('prov').value; cfg.key=k; cfg.endpoint=$('endpoint').value.trim();
+  if(P.custom&&!cfg.endpoint){smsg('err','먼저 <b>Base URL</b> 을 넣어 주세요.');return;}
+
+  var sel=$('modelsel'), btn=this;
+  btn.disabled=true; var old=btn.textContent;
+  sel.disabled=true; sel.innerHTML='<option value="">찾는 중…</option>';
+
   try{
-    var r,d,ids=[];
-    if(P.kind==='gemini'){
-      r=await fetch(url+'?key='+encodeURIComponent(k)+'&pageSize=200');
-      d=await r.json();
-      if(!r.ok)throw new Error((d.error&&d.error.message)||('오류 '+r.status));
-      ids=(d.models||[])
-        .filter(function(m){return (m.supportedGenerationMethods||[]).indexOf('generateContent')>=0})
-        .map(function(m){return String(m.name||'').replace(/^models\//,'')});
+    var ids;
+    if(P.kind==='claude'){
+      /* Claude 는 목록 API 가 없다 — 알려진 것으로 시험한다 */
+      ids=['claude-opus-5','claude-sonnet-5','claude-haiku-4-5-20251001'];
     } else {
-      r=await fetch(url,{headers:{authorization:'Bearer '+k}});
-      d=await r.json();
-      if(!r.ok)throw new Error(errOf(d,r.status));
-      ids=(d.data||[]).map(function(m){return m.id});
+      btn.textContent='목록 받는 중…';
+      ids=await listModels(P,k);
     }
-    /* 이미지를 읽을 법한 것을 앞으로 */
-    var good=ids.filter(function(x){return /vision|vl|pro|flash|gpt-|o\d|solar/i.test(x)});
-    var rest=ids.filter(function(x){return good.indexOf(x)<0});
-    ids=good.concat(rest);
-    var dl=$('modellist'); dl.innerHTML='';
-    ids.forEach(function(x){var o=document.createElement('option');o.value=x;dl.appendChild(o);});
-    if(ids.length){
-      $('model').value=ids[0]; $('model').dataset.auto='0';
-      smsg('ok','모델 '+ids.length+'개를 받았습니다. 모델 칸을 누르시면 목록이 나옵니다. <b>'+ids[0]+'</b> 로 넣어 두었습니다.');
-    } else smsg('err','쓸 수 있는 모델이 없습니다.');
-  }catch(e){ smsg('err','목록을 받지 못했습니다 — '+(e.message||e)); }
-  this.disabled=false;this.textContent=old;
+    ids=likely(ids);
+    if(!ids.length)throw new Error('쓸 수 있는 모델이 없습니다.');
+
+    /* 앞에서부터 차례로 시험한다. 3개를 찾으면 멈춘다 — 다 해보면 너무 오래 걸린다 */
+    var ok=[], tried=0, MAXTRY=Math.min(ids.length,18), WANT=5;
+    for(var i=0;i<MAXTRY&&ok.length<WANT;i++){
+      tried++;
+      btn.textContent='시험 '+tried+'/'+MAXTRY+'…';
+      smsg('go','사진을 읽을 수 있는지 하나씩 확인하고 있습니다… <b>'+ids[i]+'</b>'+
+        (ok.length?'<br>지금까지 찾은 것: '+ok.join(', '):''));
+      if(await canSeeImage(P,k,ids[i])) ok.push(ids[i]);
+    }
+
+    sel.innerHTML='';
+    if(ok.length){
+      ok.forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o);});
+      sel.disabled=false;
+      $('model').value=ok[0];
+      smsg('ok','사진을 읽을 수 있는 모델 <b>'+ok.length+'개</b>를 찾았습니다. '+
+        '<b>'+ok[0]+'</b> 로 골라 두었습니다. 아래 <b>[저장하고 연결 확인]</b>을 눌러 주세요.');
+      $('sn-model').parentNode.classList.add('done');
+    } else {
+      sel.innerHTML='<option value="">사진을 읽는 모델을 찾지 못했습니다</option>';
+      smsg('err','시험해 본 '+tried+'개 중에 사진을 읽는 모델이 없었습니다.'+
+        '<br>다른 AI를 고르시거나, <b>모델 이름을 직접 넣기</b>로 이름을 넣어 보세요.');
+    }
+  }catch(e){
+    sel.innerHTML='<option value="">찾지 못했습니다</option>';
+    smsg('err','모델을 찾지 못했습니다 — '+String(e.message||e));
+  }
+  btn.disabled=false; btn.textContent=old;
 });
 
-$('save').addEventListener('click',async function(){
-  var k=$('key').value.trim();
-  if(!k){msg('err','키를 입력해 주세요.');smsg('err','키를 입력해 주세요.');return;}
-  this.disabled=true;var old=this.textContent;this.textContent='확인 중…';
-  smsg('go','연결을 확인하고 있습니다…');
-  cfg.mode='mine';cfg.prov=$('prov').value;cfg.key=k;
-  cfg.model=$('model').value.trim()||(PROV[cfg.prov]||{}).model||'';
-  cfg.endpoint=$('endpoint').value.trim();
-  if((PROV[cfg.prov]||{}).custom&&!cfg.endpoint){
-    this.disabled=false;this.textContent=old;msg('err','API 주소를 넣어 주세요.');smsg('err','API 주소를 넣어 주세요.');return;}
-  if(!cfg.model){this.disabled=false;this.textContent=old;msg('err','모델 이름을 넣어 주세요.');smsg('err','모델 이름을 넣어 주세요.');return;}
-  var r=await test();
-  this.disabled=false;this.textContent=old;
-  if(r===true){store();badge();
-    msg('ok','연결되었습니다. 이제 사진을 넣어 주세요.');
-    smsg('ok','✓ 연결되었습니다. 아래에서 사진을 넣어 주세요.');
-    setTimeout(function(){$('setup').open=false;},1200);
-  } else {
-    msg('err','연결하지 못했습니다 — '+r);
-    smsg('err','<b>연결하지 못했습니다</b><br>'+r);
-  }
+$('modelsel').addEventListener('change',function(){
+  if(this.value){$('model').value=this.value;$('model').dataset.auto='0';}
 });
-$('clear').addEventListener('click',function(){cfg.key='';$('key').value='';store();badge();msg('ok','지웠습니다.');});
-$('savep').addEventListener('click',function(){
-  var p=$('pass').value.trim();
-  if(!p){msg('err','암호를 입력해 주세요.');smsg('err','암호를 입력해 주세요.','smsgp');return;}
-  cfg.mode='share';cfg.pass=p;store();badge();
-  msg('ok','저장했습니다. 이제 사진을 넣어 주세요.');
-  smsg('ok','✓ 저장했습니다. 아래에서 사진을 넣어 주세요.','smsgp');
-  setTimeout(function(){$('setup').open=false;},1200);
-});
-$('clearp').addEventListener('click',function(){cfg.pass='';$('pass').value='';store();badge();msg('ok','지웠습니다.');});
 
 function msg(k,t){var s=$('status');s.className=k;s.innerHTML=t;}
 /* 설정 박스 안에도 결과를 띄운다 — 아래쪽 상태줄은 접힌 상태에선 눈에 안 들어온다 */
@@ -571,7 +614,11 @@ if(!SHARE_ENDPOINT){
 }
 
 $('prov').value=(PROV[cfg.prov]?cfg.prov:'gemini');
-if(cfg.model){$('model').value=cfg.model;$('model').dataset.auto='0';}
+if(cfg.model){
+  $('model').value=cfg.model;$('model').dataset.auto='0';
+  var so=document.createElement('option');so.value=cfg.model;so.textContent=cfg.model+' (지난번에 쓰신 것)';
+  var ms=$('modelsel');ms.innerHTML='';ms.appendChild(so);ms.disabled=false;
+}
 if(cfg.endpoint)$('endpoint').value=cfg.endpoint;
 paintProv();
 if(cfg.key)$('key').value=cfg.key;
