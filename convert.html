@@ -317,7 +317,7 @@ $('fetchmodels').addEventListener('click',async function(){
     } else {
       r=await fetch(url,{headers:{authorization:'Bearer '+k}});
       d=await r.json();
-      if(!r.ok)throw new Error((d.error&&(d.error.message||d.error))||('오류 '+r.status));
+      if(!r.ok)throw new Error(errOf(d,r.status));
       ids=(d.data||[]).map(function(m){return m.id});
     }
     /* 이미지를 읽을 법한 것을 앞으로 */
@@ -398,22 +398,41 @@ async function test(){
 }
 
 /* 받으신 주소가 Base URL 이든 전체 경로든 모두 받는다 */
-function epOf(P){
-  var u=(P.custom?cfg.endpoint:P.ep)||'';
-  u=u.trim().replace(/\/+$/,'');
+/* 서비스마다 오류를 담는 자리가 다르다 — 아는 형태를 모두 뒤진다 */
+function errOf(d,status){
+  var e=d&&(d.error||d.detail||d.message)||d;
+  if(typeof e==='string')return e;
+  if(e&&typeof e==='object'){
+    if(typeof e.message==='string')return e.message;
+    if(e.detail&&typeof e.detail.message==='string')return e.detail.message;
+    if(typeof e.error==='string')return e.error;
+    try{return JSON.stringify(e).slice(0,300);}catch(x){}
+  }
+  return '오류 '+status;
+}
+function baseOf(){
+  var u=(cfg.endpoint||'').trim().replace(/\/+$/,'');
   if(!u)return '';
-  if(/\/(chat\/)?completions$/.test(u))return u;   /* 이미 전체 경로 */
-  if(/\/v\d+$/.test(u))return u+'/chat/completions'; /* .../v1 */
-  return u+'/v1/chat/completions';                  /* 도메인만 */
+  u=u.replace(/\/chat\/completions$/,'').replace(/\/completions$/,'').replace(/\/models$/,'');
+  /* 도메인만 주신 경우에만 /v1 을 붙인다.
+     .../v1 이든 .../v1/gateway 든, 경로가 있으면 그대로 둔다
+     — 예전에는 /v1 로 끝나지 않으면 /v1 을 덧붙여 404 가 났다 */
+  try{
+    var pathname=new URL(u).pathname.replace(/\/+$/,'');
+    if(!pathname||pathname==='/')u=u.replace(/\/+$/,'')+'/v1';
+  }catch(e){}
+  return u;
+}
+function epOf(P){
+  if(!P.custom)return P.ep||'';
+  var b=baseOf();
+  return b?b+'/chat/completions':'';
 }
 function listOf(P){
   if(P.list)return P.list;
   if(!P.custom)return '';
-  var u=(cfg.endpoint||'').trim().replace(/\/+$/,'');
-  if(!u)return '';
-  u=u.replace(/\/(chat\/)?completions$/,'');
-  if(/\/v\d+$/.test(u))return u+'/models';
-  return u+'/v1/models';
+  var b=baseOf();
+  return b?b+'/models':'';
 }
 
 /* 한 곳에서 모든 제공자를 부른다 — 새 서비스는 PROV 에 줄만 더하면 된다 */
@@ -455,7 +474,7 @@ async function callAI(prompt, im, maxTok){
       messages:[{role:'user',content:[{type:'text',text:prompt},
         {type:'image_url',image_url:{url:'data:'+im.mime+';base64,'+im.data}}]}]})});
   var d3=await r3.json().catch(function(){return{}});
-  if(!r3.ok)throw new Error((d3.error&&(d3.error.message||d3.error))||('오류 '+r3.status));
+  if(!r3.ok)throw new Error(errOf(d3,r3.status));
   return (d3.choices&&d3.choices[0]&&d3.choices[0].message&&d3.choices[0].message.content)||'';
 }
 
