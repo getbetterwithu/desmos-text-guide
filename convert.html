@@ -306,7 +306,7 @@ if(/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent))document.body
 var MQ=MathQuill.getInterface(2);
 
 /* ── 설정 ── */
-function badge(){
+function setBadge(){
   var b=$('badge');
   if(cfg.mode==='share'&&cfg.pass){b.className='badge share';b.textContent='공유 암호 사용 중';}
   else if(cfg.mode==='mine'&&cfg.key){b.className='badge mine';
@@ -425,15 +425,15 @@ function newestFirst(ids){
 
 $('fetchmodels').addEventListener('click',async function(){
   var k=$('key').value.trim();
-  if(!k){smsg('err','먼저 <b>API 키</b>를 넣어 주세요.');return;}
+  if(!k){showSetupMsg('err','먼저 <b>API 키</b>를 넣어 주세요.');return;}
   var P=PROV[$('prov').value]||{};
   cfg.prov=$('prov').value; cfg.key=k; cfg.endpoint=$('endpoint').value.trim();
-  if(P.custom&&!cfg.endpoint){smsg('err','먼저 <b>Base URL</b> 을 넣어 주세요.');return;}
+  if(P.custom&&!cfg.endpoint){showSetupMsg('err','먼저 <b>Base URL</b> 을 넣어 주세요.');return;}
 
   var sel=$('modelsel'), btn=this, old=btn.textContent;
   btn.disabled=true; btn.textContent='받는 중…';
   sel.disabled=true; sel.innerHTML='<option value="">받는 중…</option>';
-  smsg('go','쓰실 수 있는 모델을 받아 오고 있습니다…');
+  showSetupMsg('go','쓰실 수 있는 모델을 받아 오고 있습니다…');
 
   try{
     var ids;
@@ -450,18 +450,18 @@ $('fetchmodels').addEventListener('click',async function(){
       vis.forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o);});
       sel.disabled=false;
       $('model').value=vis[0];
-      smsg('ok','사진을 읽는 모델 <b>'+vis.length+'개</b>를 골라 왔습니다'+
+      showSetupMsg('ok','사진을 읽는 모델 <b>'+vis.length+'개</b>를 골라 왔습니다'+
         (all>vis.length?' <span class="muted">(전체 '+all+'개 중)</span>':'')+
         '.<br>맨 위의 <b>'+vis[0]+'</b> 로 골라 두었습니다. 바꾸시려면 목록을 눌러 주세요.');
       $('sn-model').parentNode.classList.add('done');
     } else {
       sel.innerHTML='<option value="">사진을 읽는 모델이 없습니다</option>';
-      smsg('err','받아 온 '+all+'개 중에 사진을 읽는 모델이 없었습니다.'+
+      showSetupMsg('err','받아 온 '+all+'개 중에 사진을 읽는 모델이 없었습니다.'+
         '<br>다른 AI를 고르시거나, <b>모델 이름을 직접 넣기</b>로 넣어 보세요.');
     }
   }catch(e){
     sel.innerHTML='<option value="">받지 못했습니다</option>';
-    smsg('err','모델을 받지 못했습니다 — '+String(e.message||e));
+    showSetupMsg('err','모델을 받지 못했습니다 — '+String(e.message||e));
   }
   btn.disabled=false; btn.textContent=old;
 });
@@ -470,9 +470,70 @@ $('modelsel').addEventListener('change',function(){
   if(this.value){$('model').value=this.value;$('model').dataset.auto='0';}
 });
 
+/* 저장하고 연결 확인 */
+$('save').addEventListener('click',async function(){
+  var k=$('key').value.trim();
+  if(!k){showSetupMsg('err','먼저 <b>API 키</b>를 넣어 주세요.');return;}
+  var P=PROV[$('prov').value]||{};
+  var b=this, old=b.textContent;
+  b.disabled=true; b.textContent='확인 중…';
+  showSetupMsg('go','연결을 확인하고 있습니다…');
+
+  cfg.mode='mine';
+  cfg.prov=$('prov').value;
+  cfg.key=k;
+  cfg.endpoint=$('endpoint').value.trim();
+  cfg.model=$('modelsel').value||$('model').value.trim()||P.model||'';
+
+  if(P.custom&&!cfg.endpoint){
+    b.disabled=false;b.textContent=old;
+    showSetupMsg('err','먼저 <b>Base URL</b> 을 넣어 주세요.');return;}
+  if(!cfg.model){
+    b.disabled=false;b.textContent=old;
+    showSetupMsg('err','먼저 <b>[모델 목록 받기]</b>를 눌러 모델을 골라 주세요.');return;}
+
+  var r=await test();
+  b.disabled=false; b.textContent=old;
+  if(r===true){
+    store(); setBadge();
+    msg('ok','연결되었습니다. 이제 사진을 넣어 주세요.');
+    showSetupMsg('ok','✓ <b>'+cfg.model+'</b> 로 연결되었습니다. 아래에서 사진을 넣어 주세요.');
+    setTimeout(function(){$('setup').open=false;},1200);
+  } else {
+    msg('err','연결하지 못했습니다 — '+r);
+    showSetupMsg('err','<b>연결하지 못했습니다</b><br>'+r);
+  }
+});
+
+/* 지우기 */
+$('clear').addEventListener('click',function(){
+  cfg.key=''; cfg.model=''; cfg.endpoint='';
+  $('key').value=''; $('model').value=''; $('endpoint').value='';
+  var sel=$('modelsel');
+  sel.innerHTML='<option value="">먼저 [모델 목록 받기]를 눌러 주세요</option>';
+  sel.disabled=true;
+  $('sn-model').parentNode.classList.remove('done');
+  store(); setBadge();
+  showSetupMsg('ok','지웠습니다.');
+});
+
+/* 공유 암호 저장·지우기 */
+if($('savep'))$('savep').addEventListener('click',function(){
+  var pw=$('pass').value.trim();
+  if(!pw){showSetupMsg('err','암호를 입력해 주세요.','smsgp');return;}
+  cfg.mode='share'; cfg.pass=pw; store(); setBadge();
+  msg('ok','저장했습니다. 이제 사진을 넣어 주세요.');
+  showSetupMsg('ok','✓ 저장했습니다. 아래에서 사진을 넣어 주세요.','smsgp');
+  setTimeout(function(){$('setup').open=false;},1200);
+});
+if($('clearp'))$('clearp').addEventListener('click',function(){
+  cfg.pass=''; $('pass').value=''; store(); setBadge();
+  showSetupMsg('ok','지웠습니다.','smsgp');
+});
+
 function msg(k,t){var s=$('status');s.className=k;s.innerHTML=t;}
 /* 설정 박스 안에도 결과를 띄운다 — 아래쪽 상태줄은 접힌 상태에선 눈에 안 들어온다 */
-function smsg(k,t,which){var e=$(which||'smsg');if(!e)return;e.className='smsg '+k;e.innerHTML=t;}
+function showSetupMsg(k,t,which){var e=$(which||'smsg');if(!e)return;e.className='smsg '+k;e.innerHTML=t;}
 
 /* ── 연결 확인 ── */
 async function test(){
@@ -713,7 +774,7 @@ paintProv();
 if(cfg.key)$('key').value=cfg.key;
 if(cfg.pass)$('pass').value=cfg.pass;
 if(cfg.mode==='share'){var sh=document.querySelector('.tab[data-t="share"]'); if(sh)sh.click();}
-badge();
+setBadge();
 if(!ready())$('setup').open=true;
 })();
 </script>
